@@ -254,7 +254,7 @@ class TabTrayController: UIViewController {
     fileprivate(set) internal var privateMode: Bool = false {
         didSet {
             tabDataSource.tabs = tabsToDisplay
-            toolbar.styleToolbar(privateMode)
+            toolbar.applyTheme(.Private)
             collectionView?.reloadData()
         }
     }
@@ -1045,17 +1045,19 @@ class TrayToolbar: UIView {
             make.size.equalTo(toolbarButtonSize)
         }
 
-        styleToolbar(false)
+        applyTheme(.Normal)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    fileprivate func styleToolbar(_ isPrivate: Bool) {
-        addTabButton.tintColor = isPrivate ? UIColor(rgb: 0xf9f9fa) : UIColor(rgb: 0x272727)
-        deleteButton.tintColor = isPrivate ? UIColor(rgb: 0xf9f9fa) : UIColor(rgb: 0x272727)
-        backgroundColor = isPrivate ? UIConstants.PrivateModeToolbarTintColor : UIColor(rgb: 0xf9f9fa)
-        maskButton.styleForMode(privateMode: isPrivate)
+    fileprivate func applyTheme(_ theme: Theme) {
+        let tint = BrowserColor(normal: 0x272727, pbm: 0xf9f9fa)
+        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x4a4a4a)
+        addTabButton.tintColor = tint.colorFor(theme)
+        deleteButton.tintColor = tint.colorFor(theme)
+        backgroundColor = background.colorFor(theme)
+        maskButton.applyTheme(theme)
     }
 }

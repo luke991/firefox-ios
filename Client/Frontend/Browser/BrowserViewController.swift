@@ -201,7 +201,7 @@ class BrowserViewController: UIViewController {
             toolbar = TabToolbar()
             footer.addSubview(toolbar!)
             toolbar?.tabToolbarDelegate = self
-            let theme = (tabManager.selectedTab?.isPrivate ?? false) ? Theme.PrivateMode : Theme.NormalMode
+            let theme = (tabManager.selectedTab?.isPrivate ?? false) ? Theme.Private : Theme.Normal
             toolbar?.applyTheme(theme)
             updateTabCountUsingTabManager(self.tabManager)
         }
@@ -697,7 +697,7 @@ class BrowserViewController: UIViewController {
             return
         }
         let isPrivate = tabManager.selectedTab?.isPrivate ?? false
-        homePanelController.applyTheme(isPrivate ? Theme.PrivateMode : Theme.NormalMode)
+        homePanelController.applyTheme(isPrivate ? Theme.Private : Theme.Normal)
         let panelNumber = tabManager.selectedTab?.url?.fragment
 
         // splitting this out to see if we can get better crash reports when this has a problem
@@ -1879,7 +1879,7 @@ extension BrowserViewController: TabManagerDelegate {
         if let tab = selected, let webView = tab.webView {
             updateURLBarDisplayURL(tab)
             if tab.isPrivate != previous?.isPrivate {
-                applyTheme(tab.isPrivate ? Theme.PrivateMode : Theme.NormalMode)
+                applyTheme(tab.isPrivate ? Theme.Private : Theme.Normal)
             }
             if tab.isPrivate {
                 readerModeCache = MemoryReaderModeCache.sharedInstance
@@ -2229,9 +2229,9 @@ extension BrowserViewController {
     func updateReaderModeBar() {
         if let readerModeBar = readerModeBar {
             if let tab = self.tabManager.selectedTab, tab.isPrivate {
-                readerModeBar.applyTheme(Theme.PrivateMode)
+                readerModeBar.applyTheme(.Private)
             } else {
-                readerModeBar.applyTheme(Theme.NormalMode)
+                readerModeBar.applyTheme(.Normal)
             }
             if let url = self.tabManager.selectedTab?.url?.displayURL?.absoluteString, let result = profile.readingList?.getRecordWithURL(url) {
                 if let successValue = result.successValue, let record = successValue {
@@ -2861,17 +2861,15 @@ extension BrowserViewController: TabTrayDelegate {
 // MARK: Browser Chrome Theming
 extension BrowserViewController: Themeable {
 
-    func applyTheme(_ themeName: String) {
+    func applyTheme(_ theme: Theme) {
         let ui: [Themeable?] = [urlBar, toolbar, readerModeBar, topTabsViewController]
-        ui.forEach { $0?.applyTheme(themeName) }
+        ui.forEach { $0?.applyTheme(theme) }
         statusBarOverlay.backgroundColor = shouldShowTopTabsForTraitCollection(traitCollection) ? UIColor(rgb: 0x272727) : urlBar.backgroundColor
         setNeedsStatusBarAppearanceUpdate()
     }
 }
 
-protocol Themeable {
-    func applyTheme(_ themeName: String)
-}
+
 
 extension BrowserViewController: FindInPageBarDelegate, FindInPageHelperDelegate {
     func findInPage(_ findInPage: FindInPageBar, didTextChange text: String) {

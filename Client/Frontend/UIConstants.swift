@@ -13,9 +13,50 @@ struct BrowserColor {
         self.normalColor = normal
         self.PBMColor = pbm
     }
+
     func color(isPBM: Bool) -> UIColor {
         return UIColor(rgb: isPBM ? PBMColor : normalColor)
     }
+
+    func colorFor(_ theme: Theme) -> UIColor {
+        return color(isPBM: theme == .Private)
+    }
+
+}
+
+extension UIColor {
+    struct Browser
+    {
+        static let Background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
+        static let Text = BrowserColor(normal: 0xffffff, pbm: 0x414146)
+        static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
+        static let LocationBarBackground = UIColor(rgb: 0xD7D7DB)
+
+    }
+
+    struct LoadingBar {
+        static let Start = BrowserColor(normal: 0x00DCFC, pbm: 0x9400ff)
+        static let End = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
+    }
+
+    struct TopTabs {
+
+    }
+
+    struct Settings {
+
+    }
+
+    struct System {
+
+    }
+}
+
+public struct BrowserColors {
+    static let Background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
+    static let Text = BrowserColor(normal: 0xffffff, pbm: 0x414146)
+    static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
+    static let LocationBarBackground = UIColor(rgb: 0xD7D7DB)
 }
 
 public struct UIConstants {

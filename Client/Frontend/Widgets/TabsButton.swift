@@ -16,30 +16,7 @@ struct TabsButtonUX {
     static let TitleFont: UIFont = UIConstants.DefaultChromeSmallFontBold
     static let BorderStrokeWidth: CGFloat = 3
     static let BorderColor: UIColor = UIColor.darkGray
-    static let TitleInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-
-    static let Themes: [String: Theme] = {
-        var themes = [String: Theme]()
-        var theme = Theme()
-        theme.borderColor = UIColor(rgb: 0xD2D2D4)
-        theme.backgroundColor = UIColor(rgb: 0x38383D)
-        theme.textColor = UIColor(rgb: 0xD2D2D4)
-        theme.highlightButtonColor = UIConstants.PrivateModePurple
-        theme.highlightTextColor = TabsButtonUX.TitleColor
-        theme.highlightBorderColor = UIConstants.PrivateModePurple
-        themes[Theme.PrivateMode] = theme
-
-        theme = Theme()
-        theme.borderColor = UIColor(rgb: 0x272727)
-        theme.backgroundColor = UIConstants.AppBackgroundColor
-        theme.textColor = UIColor(rgb: 0x272727)
-        theme.highlightButtonColor = TabsButtonUX.TitleColor
-        theme.highlightTextColor = TabsButtonUX.TitleBackgroundColor
-        theme.highlightBorderColor = TabsButtonUX.TitleColor
-        themes[Theme.NormalMode] = theme
-
-        return themes
-    }()
+    static let TitleInsets = UIEdgeInsets(equalInset: 10)
 }
 
 class TabsButton: UIButton {
@@ -239,16 +216,15 @@ class TabsButton: UIButton {
 }
 
 extension TabsButton: Themeable {
-    func applyTheme(_ themeName: String) {
-        guard let theme = TabsButtonUX.Themes[themeName] else {
-            fatalError("Theme not found")
-        }
-        titleBackgroundColor = theme.backgroundColor!
-        textColor = theme.textColor!
+    func applyTheme(_ theme: Theme) {
+        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
+        let text = BrowserColor(normal: 0x272727, pbm: 0xD2D2D4)
 
-        countLabel.textColor = textColor
-        borderView.color = textColor
-        labelBackground.backgroundColor = titleBackgroundColor
+        titleBackgroundColor = background.colorFor(theme)
+        textColor = text.colorFor(theme)
+        countLabel.textColor = text.colorFor(theme)
+        borderView.color = text.colorFor(theme)
+        labelBackground.backgroundColor = background.colorFor(theme)
 
     }
 }

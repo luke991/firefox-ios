@@ -59,23 +59,7 @@ enum HomePanelType: Int {
 }
 
 class HomePanelViewController: UIViewController, UITextFieldDelegate, HomePanelDelegate {
-    static let Themes: [String: Theme] = {
-        var themes = [String: Theme]()
-        var theme = Theme()
-        theme.backgroundColor = UIConstants.AppBackgroundColor
-        theme.buttonTintColor = UIColor(rgb: 0x7e7e7f)
-        theme.highlightButtonColor = UIConstants.HighlightBlue
-        themes[Theme.PrivateMode] = theme
 
-        theme = Theme()
-        theme.backgroundColor = UIConstants.AppBackgroundColor
-        theme.buttonTintColor = UIColor(rgb: 0x7e7e7f)
-        theme.highlightButtonColor = UIConstants.HighlightBlue
-        themes[Theme.NormalMode] = theme
-        
-        return themes
-    }()
-    
     var profile: Profile!
     var notificationToken: NSObjectProtocol!
     var panels: [HomePanelDescriptor]!
@@ -305,16 +289,16 @@ class HomePanelViewController: UIViewController, UITextFieldDelegate, HomePanelD
 
 // MARK: UIAppearance
 extension HomePanelViewController: Themeable {
-    func applyTheme(_ themeName: String) {
-        guard let theme = HomePanelViewController.Themes[themeName] else {
-            fatalError("Theme not found")
-        }
-        
-        highlightLine.backgroundColor = theme.highlightButtonColor
-        buttonContainerView.backgroundColor = theme.backgroundColor
-        self.view.backgroundColor = theme.backgroundColor
-        buttonTintColor = theme.buttonTintColor
-        buttonSelectedTintColor = theme.highlightButtonColor
+    func applyTheme(_ theme: Theme) {
+        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0xf9f9fa)
+        let highlight = BrowserColor(normal: 0x4c9eff, pbm: 0x4c9eff)
+        let tint = BrowserColor(normal: 0x7e7e7f, pbm: 0x7e7e7f)
+
+        buttonContainerView.backgroundColor = background.colorFor(theme)
+        self.view.backgroundColor = background.colorFor(theme)
+        buttonTintColor = tint.colorFor(theme)
+        buttonSelectedTintColor = highlight.colorFor(theme)
+        highlightLine.backgroundColor = highlight.colorFor(theme)
         updateButtonTints()
     }
 }

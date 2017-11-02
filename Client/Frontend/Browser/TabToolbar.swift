@@ -58,7 +58,7 @@ open class TabToolbarHelper: NSObject {
         }
     }
 
-    fileprivate func setTheme(theme: String, forButtons buttons: [Themeable]) {
+    fileprivate func setTheme(theme: Theme, forButtons buttons: [Themeable]) {
         buttons.forEach { $0.applyTheme(theme) }
     }
 
@@ -93,7 +93,7 @@ open class TabToolbarHelper: NSObject {
         toolbar.menuButton.accessibilityLabel = Strings.AppMenuButtonAccessibilityLabel
         toolbar.menuButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickMenu), for: UIControlEvents.touchUpInside)
         toolbar.menuButton.accessibilityIdentifier = "TabToolbar.menuButton"
-        setTheme(theme: Theme.NormalMode, forButtons: toolbar.actionButtons)
+        setTheme(theme: .Normal, forButtons: toolbar.actionButtons)
     }
 
     func SELdidClickBack() {
@@ -148,23 +148,6 @@ open class TabToolbarHelper: NSObject {
 }
 
 class ToolbarButton: UIButton {
-    static let Themes: [String: Theme] = {
-        var themes = [String: Theme]()
-        var theme = Theme()
-        theme.buttonTintColor = UIColor(rgb: 0xd2d2d4)
-        theme.highlightButtonColor = UIColor(rgb: 0xAC39FF)
-        theme.disabledButtonColor = UIColor.gray
-        themes[Theme.PrivateMode] = theme
-        
-        theme = Theme()
-        theme.buttonTintColor = UIColor(rgb: 0x272727)
-        theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
-        theme.disabledButtonColor = UIColor.lightGray
-        themes[Theme.NormalMode] = theme
-        
-        return themes
-    }()
-    
     var selectedTintColor: UIColor!
     var unselectedTintColor: UIColor!
     var disabledTintColor: UIColor!
@@ -202,14 +185,15 @@ class ToolbarButton: UIButton {
 }
 
 extension ToolbarButton: Themeable {
-    func applyTheme(_ themeName: String) {
-        guard let theme = ToolbarButton.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
-        }
-        selectedTintColor = theme.highlightButtonColor
-        disabledTintColor = theme.disabledButtonColor
-        unselectedTintColor = theme.buttonTintColor
+    func applyTheme(_ theme: Theme) {
+
+        let selectedTint = BrowserColor(normal: 0x00A2FE, pbm: 0xAC39FF)
+        let disabledTint = BrowserColor(normal: 0x55, pbm: 0x0) //wrong
+        let tint = BrowserColor(normal: 0x272727, pbm: 0xd2d2d4)
+
+        selectedTintColor = selectedTint.colorFor(theme)
+        disabledTintColor = disabledTint.colorFor(theme)
+        unselectedTintColor = tint.colorFor(theme)
         tintColor = isEnabled ? unselectedTintColor : disabledTintColor
         imageView?.tintColor = tintColor
     }
@@ -226,19 +210,6 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
     let actionButtons: [Themeable & UIButton]
 
     var helper: TabToolbarHelper?
-
-    static let Themes: [String: Theme] = {
-        var themes = [String: Theme]()
-        var theme = Theme()
-        theme.backgroundColor = UIColor(rgb: 0x38383D)
-        themes[Theme.PrivateMode] = theme
-
-        theme = Theme()
-        theme.backgroundColor = UIConstants.AppBackgroundColor
-        themes[Theme.NormalMode] = theme
-
-        return themes
-    }()
 
     // This has to be here since init() calls it
     fileprivate override init(frame: CGRect) {
@@ -304,12 +275,9 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
 }
 
 extension TabToolbar: Themeable {
-    func applyTheme(_ themeName: String) {
-        guard let theme = TabToolbar.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
-        }
-        backgroundColor = theme.backgroundColor!
-        helper?.setTheme(theme: themeName, forButtons: actionButtons)
+    func applyTheme(_ theme: Theme) {
+        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
+        backgroundColor = background.colorFor(theme)
+        helper?.setTheme(theme: theme, forButtons: actionButtons)
     }
 }

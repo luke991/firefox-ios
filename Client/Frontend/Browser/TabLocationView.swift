@@ -27,26 +27,6 @@ struct TabLocationViewUX {
     static let BaseURLFontColor = UIColor.gray
     static let LocationContentInset = 8
     static let URLBarPadding = 4
-
-    static let Themes: [String: Theme] = {
-        var themes = [String: Theme]()
-        var theme = Theme()
-        theme.URLFontColor = UIColor.lightGray
-        theme.textColor = UIColor(rgb: 0xf9f9fa)
-        theme.highlightButtonColor = UIConstants.PrivateModePurple
-        theme.buttonTintColor = UIColor(rgb: 0xADADb0)
-        theme.backgroundColor = UIColor(rgb: 0x636369)
-        themes[Theme.PrivateMode] = theme
-
-        theme = Theme()
-        theme.textColor = UIColor(rgb: 0x27)
-        theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
-        theme.buttonTintColor = UIColor(rgb: 0x737373)
-        theme.backgroundColor = .white
-        themes[Theme.NormalMode] = theme
-
-        return themes
-    }()
 }
 
 class TabLocationView: UIView {
@@ -309,21 +289,19 @@ extension TabLocationView: AccessibilityActionsSource {
 }
 
 extension TabLocationView: Themeable {
-    func applyTheme(_ themeName: String) {
-        guard let theme = TabLocationViewUX.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
-        }
-        let isPrivate = themeName == Theme.PrivateMode
-        backgroundColor = theme.backgroundColor
-        urlTextField.textColor = theme.textColor
-        readerModeButton.selectedTintColor = theme.highlightButtonColor
-        readerModeButton.unselectedTintColor = theme.buttonTintColor
-        pageOptionsButton.selectedTintColor = theme.highlightButtonColor
+    func applyTheme(_ theme: Theme) {
+        let background = BrowserColor(normal: 0xffffff, pbm: 0x636369)
+        let text = BrowserColor(normal: 0x272727, pbm: 0xf9f9fa)
 
-        pageOptionsButton.unselectedTintColor = isPrivate ? UIColor(rgb: 0xD2d2d4) : UIColor(rgb: 0x272727)
+        backgroundColor = background.colorFor(theme)
+        urlTextField.textColor = text.colorFor(theme)
+        readerModeButton.selectedTintColor = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff).colorFor(theme)
+        readerModeButton.unselectedTintColor = BrowserColor(normal: 0x737373, pbm: 0xADADb0).colorFor(theme)
+        
+        pageOptionsButton.selectedTintColor = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff).colorFor(theme)
+        pageOptionsButton.unselectedTintColor = BrowserColor(normal: 0x272727, pbm: 0xD2d2d4).colorFor(theme)
         pageOptionsButton.tintColor = pageOptionsButton.unselectedTintColor
-        separatorLine.backgroundColor = isPrivate ? UIColor(rgb: 0x3f3f43) : UIColor(rgb: 0xE5E5E5)
+        separatorLine.backgroundColor = BrowserColor(normal: 0xE5E5E5, pbm: 0x3f3f43).colorFor(theme)
     }
 }
 
