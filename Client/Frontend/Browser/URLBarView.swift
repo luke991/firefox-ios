@@ -646,16 +646,14 @@ extension URLBarView: Themeable {
         let borderColor = BrowserColor(normal: 0x737373, pbm: 0x2D2D31)
         let activeBorderColor = BrowserColor(normal: 0xB0D5FB, pbm: 0x4a4a4f)
         let tintColor = BrowserColor(normal: 0x00dcfc, pbm: 0xf9f9fa)
-        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
-        let buttonTint = BrowserColor(normal: 0x272727, pbm: 0xD2d2d4)
 
         progressBar.setGradientColors(startColor: UIConstants.LoadingStartColor.colorFor(theme), endColor: UIConstants.LoadingEndColor.colorFor(theme))
         currentTheme = theme
         locationBorderColor = borderColor.colorFor(theme)
         locationActiveBorderColor = activeBorderColor.colorFor(theme)
         cancelTintColor = tintColor.colorFor(theme)
-        showQRButtonTintColor = buttonTint.colorFor(theme)
-        backgroundColor = background.colorFor(theme)
+        showQRButtonTintColor = UIColor.Browser.Tint.colorFor(theme)
+        backgroundColor = UIColor.Browser.Background.colorFor(theme)
         line.backgroundColor = BrowserColors.URLBarDivider.colorFor(theme)
         line.backgroundColor = UIConstants.URLBarDivider.colorFor(theme)
         locationContainer.layer.shadowColor = self.locationBorderColor.cgColor

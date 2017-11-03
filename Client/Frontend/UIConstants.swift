@@ -31,8 +31,10 @@ extension UIColor {
         static let Text = BrowserColor(normal: 0xffffff, pbm: 0x414146)
         static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
         static let LocationBarBackground = UIColor(rgb: 0xD7D7DB)
-
+        static let Tint = BrowserColor(normal: 0x272727, pbm: 0xD2D2D4)
     }
+//UIColor.Browser.Tint.colorFor(theme)
+
 
     struct LoadingBar {
         static let Start = BrowserColor(normal: 0x00DCFC, pbm: 0x9400ff)

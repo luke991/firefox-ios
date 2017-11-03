@@ -1053,10 +1053,9 @@ class TrayToolbar: UIView {
     }
 
     fileprivate func applyTheme(_ theme: Theme) {
-        let tint = BrowserColor(normal: 0x272727, pbm: 0xf9f9fa)
         let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x4a4a4a)
-        addTabButton.tintColor = tint.colorFor(theme)
-        deleteButton.tintColor = tint.colorFor(theme)
+        addTabButton.tintColor = UIColor.Browser.Tint.colorFor(theme)
+        deleteButton.tintColor = UIColor.Browser.Tint.colorFor(theme)
         backgroundColor = background.colorFor(theme)
         maskButton.applyTheme(theme)
     }

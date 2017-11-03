@@ -20,8 +20,7 @@ class PrivateModeButton: ToggleButton, Themeable {
     }
     
     func applyTheme(_ theme: Theme) {
-        let tint = BrowserColor(normal: 0x272727, pbm: 0xf9f9fa)
-        self.tintColor = tint.colorFor(theme)
+        self.tintColor = UIColor.Browser.Tint.colorFor(theme)
         self.imageView?.tintColor = self.tintColor
         self.isSelected = theme == .Private
         self.accessibilityValue = self.isSelected ? PrivateModeStrings.toggleAccessibilityValueOn : PrivateModeStrings.toggleAccessibilityValueOff

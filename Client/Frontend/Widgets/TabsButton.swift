@@ -217,15 +217,11 @@ class TabsButton: UIButton {
 
 extension TabsButton: Themeable {
     func applyTheme(_ theme: Theme) {
-        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
-        let text = BrowserColor(normal: 0x272727, pbm: 0xD2D2D4)
-
-        titleBackgroundColor = background.colorFor(theme)
-        textColor = text.colorFor(theme)
-        countLabel.textColor = text.colorFor(theme)
-        borderView.color = text.colorFor(theme)
-        labelBackground.backgroundColor = background.colorFor(theme)
-
+        titleBackgroundColor = UIColor.Browser.Background.colorFor(theme)
+        textColor = UIColor.Browser.Tint.colorFor(theme)
+        countLabel.textColor = UIColor.Browser.Tint.colorFor(theme)
+        borderView.color = UIColor.Browser.Tint.colorFor(theme)
+        labelBackground.backgroundColor = UIColor.Browser.Background.colorFor(theme)
     }
 }
 
