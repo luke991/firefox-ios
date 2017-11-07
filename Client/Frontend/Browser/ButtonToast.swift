@@ -6,7 +6,7 @@ import Foundation
 import Shared
 import SnapKit
 
-private struct ButtonToastUX {
+struct ButtonToastUX {
     static let ToastPadding = 15.0
     static let TitleSpacing = 2.0
     static let ToastButtonPadding: CGFloat = 10.0
