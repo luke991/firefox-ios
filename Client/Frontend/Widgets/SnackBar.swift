@@ -288,11 +288,11 @@ class TimerSnackBar: SnackBar {
         let bar = TimerSnackBar(attrText: msg,
                              img: UIImage(named: "defaultFavicon"),
                              buttons: [
-                                SnackButton(title: UIConstants.OKString, accessibilityIdentifier: "ConfirmOpenInAppStore", callback: { bar in
+                                SnackButton(title: Strings.OKString, accessibilityIdentifier: "ConfirmOpenInAppStore", callback: { bar in
                                     tab.removeSnackbar(bar)
                                     UIApplication.shared.open(appStoreURL, options: [:])
                                 }),
-                                SnackButton(title: UIConstants.CancelString, accessibilityIdentifier: "CancelOpenInAppStore", callback: { bar in
+                                SnackButton(title: Strings.CancelString, accessibilityIdentifier: "CancelOpenInAppStore", callback: { bar in
                                     tab.removeSnackbar(bar)
                                 })
             ])

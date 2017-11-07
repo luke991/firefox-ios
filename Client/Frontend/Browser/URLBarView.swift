@@ -647,7 +647,7 @@ extension URLBarView: Themeable {
         currentTheme = theme
         locationBorderColor = UIColor.URLBar.Border.colorFor(theme)
         locationActiveBorderColor = UIColor.URLBar.ActiveBorder.colorFor(theme)
-        cancelTintColor = UIColor.URLBar.Tint.colorFor(theme)
+        cancelTintColor = UIColor.Browser.Tint.colorFor(theme)
         showQRButtonTintColor = UIColor.Browser.Tint.colorFor(theme)
         backgroundColor = UIColor.Browser.Background.colorFor(theme)
         line.backgroundColor = UIColor.Browser.URLBarDivider.colorFor(theme)

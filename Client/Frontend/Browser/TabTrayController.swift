@@ -254,7 +254,7 @@ class TabTrayController: UIViewController {
     fileprivate(set) internal var privateMode: Bool = false {
         didSet {
             tabDataSource.tabs = tabsToDisplay
-            toolbar.applyTheme(.Private)
+            toolbar.applyTheme(privateMode == true ? .Private : .Normal)
             collectionView?.reloadData()
         }
     }
