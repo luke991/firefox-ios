@@ -4,7 +4,7 @@
 
 import Foundation
 
-private struct TopTabsSeparatorUX {
+struct TopTabsSeparatorUX {
     static let Identifier = "Separator"
     static let Color = UIColor.Defaults.Grey70
     static let Width: CGFloat = 1

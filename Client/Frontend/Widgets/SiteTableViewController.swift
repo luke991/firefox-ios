@@ -5,7 +5,7 @@
 import UIKit
 import Storage
 
-private struct SiteTableViewControllerUX {
+struct SiteTableViewControllerUX {
     static let HeaderHeight = CGFloat(32)
     static let RowHeight = CGFloat(44)
     static let HeaderBorderColor = UIColor(rgb: 0xCFD5D9).withAlphaComponent(0.8)

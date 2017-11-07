@@ -31,7 +31,7 @@ protocol HomePanel: class {
     weak var homePanelDelegate: HomePanelDelegate? { get set }
 }
 
-private struct HomePanelUX {
+struct HomePanelUX {
     static let EmptyTabContentOffset = -180
 }
 

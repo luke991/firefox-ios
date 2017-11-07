@@ -6,7 +6,7 @@ import Foundation
 import SnapKit
 import Shared
 
-private class SnackBarUX {
+class SnackBarUX {
     static var MaxWidth: CGFloat = 400
     static let HighlightColor = UIColor(red: 205/255, green: 223/255, blue: 243/255, alpha: 0.9)
     static let HighlightText = UIColor(red: 42/255, green: 121/255, blue: 213/255, alpha: 1.0)

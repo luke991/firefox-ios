@@ -5,7 +5,7 @@
 import UIKit
 import SnapKit
 
-private struct IntroViewControllerUX {
+struct IntroViewControllerUX {
     static let Width = 375
     static let Height = 667
     static let SyncButtonTopPadding = 5

@@ -4,7 +4,7 @@
 
 import UIKit
 
-private struct TwoLineCellUX {
+struct TwoLineCellUX {
     static let ImageSize: CGFloat = 29
     static let ImageCornerRadius: CGFloat = 8
     static let BorderViewMargin: CGFloat = 16
