@@ -11,8 +11,8 @@ import Shared
 
 struct TabTrayControllerUX {
     static let CornerRadius = CGFloat(6.0)
-    static let BackgroundColor = UIConstants.TabTrayBG
-    static let CellBackgroundColor = UIConstants.TabTrayBG
+    static let BackgroundColor = UIColor.TopTabs.Background
+    static let CellBackgroundColor = UIColor.TopTabs.Background
     static let TextBoxHeight = CGFloat(32.0)
     static let FaviconSize = CGFloat(20)
     static let Margin = CGFloat(15)
@@ -29,11 +29,11 @@ struct TabTrayControllerUX {
     static let MenuFixedWidth: CGFloat = 320
 }
 
-struct LightTabCellUX {
+private struct LightTabCellUX {
     static let TabTitleTextColor = UIColor.black
 }
 
-struct DarkTabCellUX {
+private struct DarkTabCellUX {
     static let TabTitleTextColor = UIColor.white
 }
 
@@ -834,7 +834,7 @@ fileprivate class TabLayoutDelegate: NSObject, UICollectionViewDelegateFlowLayou
     }
 }
 
-struct EmptyPrivateTabsViewUX {
+private struct EmptyPrivateTabsViewUX {
     static let TitleColor = UIColor.white
     static let TitleFont = UIFont.systemFont(ofSize: 22, weight: UIFontWeightMedium)
     static let DescriptionColor = UIColor.white
@@ -1053,10 +1053,9 @@ class TrayToolbar: UIView {
     }
 
     fileprivate func applyTheme(_ theme: Theme) {
-        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0x4a4a4a)
         addTabButton.tintColor = UIColor.Browser.Tint.colorFor(theme)
         deleteButton.tintColor = UIColor.Browser.Tint.colorFor(theme)
-        backgroundColor = background.colorFor(theme)
+        backgroundColor = UIColor.TabTray.Background.colorFor(theme)
         maskButton.applyTheme(theme)
     }
 }

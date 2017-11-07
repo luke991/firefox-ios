@@ -5,18 +5,13 @@
 import Foundation
 import SnapKit
 import Shared
-import XCGLogger
 
-private let log = Logger.browserLogger
-
-struct TabsButtonUX {
-    static let TitleColor: UIColor = UIColor(rgb: 0x272727)
+private struct TabsButtonUX {
+    static let TitleColor: UIColor = UIColor.Defaults.Grey80
     static let TitleBackgroundColor: UIColor = UIColor.white
     static let CornerRadius: CGFloat = 2
     static let TitleFont: UIFont = UIConstants.DefaultChromeSmallFontBold
     static let BorderStrokeWidth: CGFloat = 3
-    static let BorderColor: UIColor = UIColor.darkGray
-    static let TitleInsets = UIEdgeInsets(equalInset: 10)
 }
 
 class TabsButton: UIButton {

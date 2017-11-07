@@ -4,14 +4,14 @@
 
 import UIKit
 
-struct TwoLineCellUX {
+private struct TwoLineCellUX {
     static let ImageSize: CGFloat = 29
     static let ImageCornerRadius: CGFloat = 8
     static let BorderViewMargin: CGFloat = 16
     static let BadgeSize: CGFloat = 16
     static let BadgeMargin: CGFloat = 16
     static let BorderFrameSize: CGFloat = 32
-    static let TextColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.black : UIColor(rgb: 0x333333)
+    static let TextColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.black : UIColor.Defaults.Grey80
     static let DetailTextColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.darkGray : UIColor.gray
     static let DetailTextTopMargin: CGFloat = 0
 }

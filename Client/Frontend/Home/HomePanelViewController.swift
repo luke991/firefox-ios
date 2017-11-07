@@ -31,7 +31,7 @@ protocol HomePanel: class {
     weak var homePanelDelegate: HomePanelDelegate? { get set }
 }
 
-struct HomePanelUX {
+private struct HomePanelUX {
     static let EmptyTabContentOffset = -180
 }
 
@@ -290,15 +290,11 @@ class HomePanelViewController: UIViewController, UITextFieldDelegate, HomePanelD
 // MARK: UIAppearance
 extension HomePanelViewController: Themeable {
     func applyTheme(_ theme: Theme) {
-        let background = BrowserColor(normal: 0xf9f9fa, pbm: 0xf9f9fa)
-        let highlight = BrowserColor(normal: 0x4c9eff, pbm: 0x4c9eff)
-        let tint = BrowserColor(normal: 0x7e7e7f, pbm: 0x7e7e7f)
-
-        buttonContainerView.backgroundColor = background.colorFor(theme)
-        self.view.backgroundColor = background.colorFor(theme)
-        buttonTintColor = tint.colorFor(theme)
-        buttonSelectedTintColor = highlight.colorFor(theme)
-        highlightLine.backgroundColor = highlight.colorFor(theme)
+        buttonContainerView.backgroundColor = UIColor.HomePanel.ToolbarBackground.colorFor(theme)
+        self.view.backgroundColor = UIColor.HomePanel.ToolbarBackground.colorFor(theme)
+        buttonTintColor = UIColor.HomePanel.ToolbarTint.colorFor(theme)
+        buttonSelectedTintColor = UIColor.HomePanel.ToolbarHighlight.colorFor(theme)
+        highlightLine.backgroundColor = UIColor.HomePanel.ToolbarHighlight.colorFor(theme)
         updateButtonTints()
     }
 }

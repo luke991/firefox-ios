@@ -5,7 +5,7 @@
 import Foundation
 import Shared
 
-struct SimpleToastUX {
+private struct SimpleToastUX {
     static let ToastHeight = BottomToolbarHeight
     static let ToastAnimationDuration = 0.5
     static let ToastDefaultColor = UIColor(red: 10 / 255, green: 132 / 255, blue: 255.0 / 255, alpha: 1)

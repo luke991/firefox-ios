@@ -33,67 +33,78 @@ extension UIColor {
         static let LocationBarBackground = UIColor(rgb: 0xD7D7DB)
         static let Tint = BrowserColor(normal: 0x272727, pbm: 0xD2D2D4)
     }
-//UIColor.Browser.Tint.colorFor(theme)
 
+    // These are defaults from http://design.firefox.com/photon/visuals/color.html
+    struct Defaults {
+        static let Grey10 = UIColor(rgb: 0xf9f9fa)
+        static let Grey40 = UIColor(rgb: 0xb1b1b3)
+        static let Grey50 = UIColor(rgb: 0x737373)
+        static let Grey60 = UIColor(rgb: 0x4a4a4f)
+        static let Grey70 = UIColor(rgb: 0x38383d)
+        static let Grey80 = UIColor(rgb: 0x272727) // Grey80 is actually #2a2a2e
+        static let Grey90 = UIColor(rgb: 0x0c0c0d)
+
+        static let LockGreen = UIColor(rgb: 0x16DA00) //need a photon green?
+
+        static let Blue40 = UIColor(rgb: 0x45a1ff)
+        static let Blue50 = UIColor(rgb: 0x0a84ff)
+        static let Blue60 = UIColor(rgb: 0x0066DC) // Blue60 is actually #0060df
+
+        static let Purple50 = UIColor(rgb: 0x9400ff)
+    }
+
+    struct URLBar {
+        static let Border = BrowserColor(normal: 0x737373, pbm: 0x2D2D31)
+        static let ActiveBorder = BrowserColor(normal: 0xB0D5FB, pbm: 0x4a4a4f)
+        static let Tint = BrowserColor(normal: 0x00dcfc, pbm: 0xf9f9fa)
+    }
+
+    struct TextField {
+        static let Background = BrowserColor(normal: 0xffffff, pbm: 0x636369)
+        static let TextAndTint = BrowserColor(normal: 0x272727, pbm: 0xffffff)
+        static let Highlight = BrowserColor(normal: 0xccdded, pbm: 0x7878a5)
+        static let ReaderModeButtonSelected = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff)
+        static let ReaderModeButtonUnselected = BrowserColor(normal: 0x737373, pbm: 0xADADb0)
+        static let PageOptionsSelected = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff)
+        static let PageOptionsUnselected = UIColor.Browser.Tint
+        static let Separator = BrowserColor(normal: 0xE5E5E5, pbm: 0x3f3f43)
+    }
+
+    // The back/forward/refresh/menu button (bottom toolbar)
+    struct ToolbarButton {
+        static let SelectedTint = BrowserColor(normal: 0x00A2FE, pbm: 0xAC39FF)
+        static let DisabledTint = BrowserColor(normal: 0x55, pbm: 0x0) //wrong
+    }
 
     struct LoadingBar {
         static let Start = BrowserColor(normal: 0x00DCFC, pbm: 0x9400ff)
         static let End = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
     }
 
+    struct TabTray {
+        static let Background = BrowserColor(normal: 0xf9f9fa, pbm: 0x4a4a4a)
+    }
+
     struct TopTabs {
-
+        static let PrivateModeTint = BrowserColor(normal: 0xf9f9fa, pbm: 0xb1b1b3)
+        static let Background = UIColor.Defaults.Grey80
     }
 
-    struct Settings {
-
+    struct HomePanel {
+        // These values are the same for both private/normal.
+        // The homepanel toolbar needed to be able to theme, not anymore.
+        // Keep this just in case someone decides they want it to theme again
+        static let ToolbarBackground = BrowserColor(normal: 0xf9f9fa, pbm: 0xf9f9fa)
+        static let ToolbarHighlight = BrowserColor(normal: 0x4c9eff, pbm: 0x4c9eff)
+        static let ToolbarTint = BrowserColor(normal: 0x7e7e7f, pbm: 0x7e7e7f)
     }
-
-    struct System {
-
-    }
-}
-
-public struct BrowserColors {
-    static let Background = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
-    static let Text = BrowserColor(normal: 0xffffff, pbm: 0x414146)
-    static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
-    static let LocationBarBackground = UIColor(rgb: 0xD7D7DB)
 }
 
 public struct UIConstants {
     static let AboutHomePage = URL(string: "\(WebServer.sharedInstance.base)/about/home/")!
 
-    // Photon Colors. Remove old colors once we've completly transitioned
-    static let BrowserUI = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
-    static let TextColor = BrowserColor(normal: 0xffffff, pbm: 0x414146)
-    static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
-    static let TabTrayBG = UIColor(rgb: 0x272727)
-    static let locationBarBG = UIColor(rgb: 0xD7D7DB)
-    static let LoadingStartColor = BrowserColor(normal: 0x00DCFC, pbm: 0x9400ff)
-    static let LoadingEndColor = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
-
-    //Photon UI sizes
+    // Toolbars
     static let TopToolbarHeight: CGFloat = 56
-    // The loading bar starts with one color and then animates to the second one
-    static let LoadingBarStart = BrowserColor(normal: 0x00DCFC, pbm: 0x9f00ff)
-    static let LoadingBarEnd = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
-
-    static let TextSelectionBG = UIColor(rgb: 0xE4E4E4)
-
-    static let TopTabsBG = TabTrayBG
-
-    static let AppBackgroundColor = UIColor(rgb: 0xf9f9fa)
-    static let SystemBlueColor = UIColor(rgb: 0x0297F8)
-    static let PrivateModePurple = UIColor(red: 207 / 255, green: 104 / 255, blue: 255 / 255, alpha: 1)
-    static let PrivateModeLocationBackgroundColor = UIColor(red: 31 / 255, green: 31 / 255, blue: 31 / 255, alpha: 1)
-    static let PrivateModeLocationBorderColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0.15)
-    static let PrivateModeActionButtonTintColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0.8)
-    static let PrivateModeTextHighlightColor = UIColor(red: 207 / 255, green: 104 / 255, blue: 255 / 255, alpha: 1)
-    static let PrivateModeInputHighlightColor = UIColor(red: 120 / 255, green: 120 / 255, blue: 165 / 255, alpha: 1)
-    static let PrivateModeAssistantToolbarBackgroundColor = UIColor(red: 89 / 255, green: 89 / 255, blue: 89 / 255, alpha: 1)
-    static let PrivateModeToolbarTintColor = UIColor(red: 74 / 255, green: 74 / 255, blue: 74 / 255, alpha: 1)
-
     static var ToolbarHeight: CGFloat = 46
     static var BottomToolbarHeight: CGFloat {
         get {
@@ -106,22 +117,25 @@ public struct UIConstants {
             return ToolbarHeight + bottomInset
         }
     }
-    static let DefaultRowHeight: CGFloat = 58
+
     static let DefaultPadding: CGFloat = 10
     static let SnackbarButtonHeight: CGFloat = 48
+
+    static let AppBackgroundColor = UIColor.Defaults.Grey10
+    static let SystemBlueColor = UIColor.Defaults.Blue50
+    static let ControlTintColor = UIColor.Defaults.Blue50
+    static let PasscodeDotColor = UIColor.Defaults.Grey60
+    static let PrivateModeAssistantToolbarBackgroundColor = UIColor.Defaults.Grey50
+    static let PrivateModeTextHighlightColor = UIColor.Defaults.Purple50
+    static let PrivateModePurple = UIColor(rgb: 0xcf68ff)
 
     // Static fonts
     static let DefaultChromeSize: CGFloat = 16
     static let DefaultChromeSmallSize: CGFloat = 11
     static let PasscodeEntryFontSize: CGFloat = 36
     static let DefaultChromeFont: UIFont = UIFont.systemFont(ofSize: DefaultChromeSize, weight: UIFontWeightRegular)
-    static let DefaultChromeBoldFont = UIFont.systemFont(ofSize: DefaultChromeSize, weight: UIFontWeightHeavy)
     static let DefaultChromeSmallFontBold = UIFont.boldSystemFont(ofSize: DefaultChromeSmallSize)
     static let PasscodeEntryFont = UIFont.systemFont(ofSize: PasscodeEntryFontSize, weight: UIFontWeightBold)
-
-    // These highlight colors are currently only used on Snackbar buttons when they're pressed
-    static let HighlightColor = UIColor(red: 205/255, green: 223/255, blue: 243/255, alpha: 0.9)
-    static let HighlightText = UIColor(red: 42/255, green: 121/255, blue: 213/255, alpha: 1.0)
 
     static let PanelBackgroundColor = UIColor.white
     static let SeparatorColor = UIColor(rgb: 0xcccccc)
@@ -130,20 +144,10 @@ public struct UIConstants {
     static let BorderColor = UIColor.darkGray
     static let BackgroundColor = AppBackgroundColor
 
-    // These colours are used on the Menu
-    static let MenuToolbarBackgroundColorNormal = AppBackgroundColor
-    static let MenuToolbarBackgroundColorPrivate = UIColor(red: 74/255, green: 74/255, blue: 74/255, alpha: 1.0)
-    static let MenuToolbarTintColorNormal = BackgroundColor
-    static let MenuToolbarTintColorPrivate = UIColor.white
-    static let MenuBackgroundColorNormal = UIColor(red: 223/255, green: 223/255, blue: 223/255, alpha: 1.0)
-    static let MenuBackgroundColorPrivate = UIColor(red: 59/255, green: 59/255, blue: 59/255, alpha: 1.0)
-    static let MenuSelectedItemTintColor = UIColor(red: 0.30, green: 0.62, blue: 1.0, alpha: 1.0)
-    static let MenuDisabledItemTintColor = UIColor.lightGray
-
     // settings
     static let TableViewHeaderBackgroundColor = AppBackgroundColor
-    static let TableViewHeaderTextColor = UIColor(rgb: 0x737373)
-    static let TableViewRowTextColor = UIColor(rgb: 0x0c0c0d)
+    static let TableViewHeaderTextColor = UIColor.Defaults.Grey50
+    static let TableViewRowTextColor = UIColor.Defaults.Grey90
     static let TableViewDisabledRowTextColor = UIColor.lightGray
     static let TableViewSeparatorColor = UIColor(rgb: 0xD1D1D4)
     static let TableViewHeaderFooterHeight = CGFloat(44)
@@ -151,20 +155,15 @@ public struct UIConstants {
     static let TableViewRowWarningTextColor = UIColor(red: 245/255, green: 166/255, blue: 35/255, alpha: 1.0)
     static let TableViewRowActionAccessoryColor = UIColor(red: 0.29, green: 0.56, blue: 0.89, alpha: 1.0)
     static let TableViewRowSyncTextColor = UIColor(red: 51/255, green: 51/255, blue: 51/255, alpha: 1.0)
-    
-    // Firefox Orange
-    static let ControlTintColor = SystemBlueColor
 
     // List of Default colors to use for Favicon backgrounds
     static let DefaultColorStrings = ["2e761a", "399320", "40a624", "57bd35", "70cf5b", "90e07f", "b1eea5", "881606", "aa1b08", "c21f09", "d92215", "ee4b36", "f67964", "ffa792", "025295", "0568ba", "0675d3", "0996f8", "2ea3ff", "61b4ff", "95cdff", "00736f", "01908b", "01a39d", "01bdad", "27d9d2", "58e7e6", "89f4f5", "c84510", "e35b0f", "f77100", "ff9216", "ffad2e", "ffc446", "ffdf81", "911a2e", "b7223b", "cf2743", "ea385e", "fa526e", "ff7a8d", "ffa7b3" ]
-
-    // Passcode dot gray
-    static let PasscodeDotColor = UIColor(rgb: 0x4A4A4A)
 
     /// JPEG compression quality for persisted screenshots. Must be between 0-1.
     static let ScreenshotQuality: Float = 0.3
     static let ActiveScreenshotQuality: CGFloat = 0.5
 
+    // Warning - Move these to Strings.swift
     static let OKString = NSLocalizedString("OK", comment: "OK button")
     static let CancelString = NSLocalizedString("Cancel", comment: "Label for Cancel button")
 }

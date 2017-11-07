@@ -16,6 +16,10 @@ protocol AutocompleteTextFieldDelegate: class {
     func autocompleteTextFieldDidBeginEditing(_ autocompleteTextField: AutocompleteTextField)
 }
 
+private struct AutocompleteTextFieldUX {
+       static let HighlightColor = UIColor(rgb: 0xccdded)
+}
+
 class AutocompleteTextField: UITextField, UITextFieldDelegate {
     var autocompleteDelegate: AutocompleteTextFieldDelegate?
 

@@ -5,7 +5,7 @@
 import Shared
 import SnapKit
 
-struct URLBarViewUX {
+private struct URLBarViewUX {
     static let TextFieldBorderColor = UIColor(rgb: 0xBBBBBB)
     static let TextFieldActiveBorderColor = UIColor(rgb: 0xB0D5FB)
 
@@ -643,19 +643,15 @@ extension URLBarView: Themeable {
         self.actionButtons.forEach { $0.applyTheme(theme) }
         tabsButton.applyTheme(theme)
 
-        let borderColor = BrowserColor(normal: 0x737373, pbm: 0x2D2D31)
-        let activeBorderColor = BrowserColor(normal: 0xB0D5FB, pbm: 0x4a4a4f)
-        let tintColor = BrowserColor(normal: 0x00dcfc, pbm: 0xf9f9fa)
-
-        progressBar.setGradientColors(startColor: UIConstants.LoadingStartColor.colorFor(theme), endColor: UIConstants.LoadingEndColor.colorFor(theme))
+        progressBar.setGradientColors(startColor: UIColor.LoadingBar.Start.colorFor(theme), endColor: UIColor.LoadingBar.End.colorFor(theme))
         currentTheme = theme
-        locationBorderColor = borderColor.colorFor(theme)
-        locationActiveBorderColor = activeBorderColor.colorFor(theme)
-        cancelTintColor = tintColor.colorFor(theme)
+        locationBorderColor = UIColor.URLBar.Border.colorFor(theme)
+        locationActiveBorderColor = UIColor.URLBar.ActiveBorder.colorFor(theme)
+        cancelTintColor = UIColor.URLBar.Tint.colorFor(theme)
         showQRButtonTintColor = UIColor.Browser.Tint.colorFor(theme)
         backgroundColor = UIColor.Browser.Background.colorFor(theme)
-        line.backgroundColor = BrowserColors.URLBarDivider.colorFor(theme)
-        line.backgroundColor = UIConstants.URLBarDivider.colorFor(theme)
+        line.backgroundColor = UIColor.Browser.URLBarDivider.colorFor(theme)
+        line.backgroundColor = UIColor.Browser.URLBarDivider.colorFor(theme)
         locationContainer.layer.shadowColor = self.locationBorderColor.cgColor
     }
 }
@@ -664,7 +660,7 @@ extension URLBarView: Themeable {
 // This subclass creates a strong shadow on the URLBar
 class TabLocationContainerView: UIView {
     
-    struct LocationContainerUX {
+    private struct LocationContainerUX {
         static let CornerRadius: CGFloat = 4
         static let ShadowRadius: CGFloat = 2
         static let ShadowOpacity: Float = 1
@@ -765,13 +761,9 @@ class ToolbarTextField: AutocompleteTextField {
 extension ToolbarTextField: Themeable {
 
     func applyTheme(_ theme: Theme) {
-        let Background = BrowserColor(normal: 0xff, pbm: 0x636369)
-        let TextAndTint = BrowserColor(normal: 0x272727, pbm: 0xff)
-        let Highlight = BrowserColor(normal: 0xccdded, pbm: 0x7878a5)
-
-        backgroundColor = Background.colorFor(theme)
-        textColor = TextAndTint.colorFor(theme)
+        backgroundColor = UIColor.TextField.Background.colorFor(theme)
+        textColor = UIColor.TextField.TextAndTint.colorFor(theme)
         clearButtonTintColor = textColor
-        highlightColor = Highlight.colorFor(theme)
+        highlightColor = UIColor.TextField.Highlight.colorFor(theme)
     }
 }

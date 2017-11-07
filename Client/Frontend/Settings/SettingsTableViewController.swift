@@ -632,7 +632,7 @@ class SettingsTableViewController: UITableViewController {
     }
 }
 
-struct SettingsTableSectionHeaderFooterViewUX {
+private struct SettingsTableSectionHeaderFooterViewUX {
     static let titleHorizontalPadding: CGFloat = 15
     static let titleVerticalPadding: CGFloat = 6
     static let titleVerticalLongPadding: CGFloat = 20

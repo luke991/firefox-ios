@@ -22,7 +22,7 @@ protocol TabLocationViewDelegate {
     func tabLocationViewLocationAccessibilityActions(_ tabLocationView: TabLocationView) -> [UIAccessibilityCustomAction]?
 }
 
-struct TabLocationViewUX {
+private struct TabLocationViewUX {
     static let HostFontColor = UIColor.black
     static let BaseURLFontColor = UIColor.gray
     static let LocationContentInset = 8
@@ -109,7 +109,7 @@ class TabLocationView: UIView {
     fileprivate lazy var lockImageView: UIImageView = {
         let lockImageView = UIImageView(image: UIImage.templateImageNamed("lock_verified"))
         lockImageView.isHidden = true
-        lockImageView.tintColor = UIColor(rgb: 0x16DA00)
+        lockImageView.tintColor = UIColor.Defaults.LockGreen
         lockImageView.isAccessibilityElement = true
         lockImageView.contentMode = UIViewContentMode.center
         lockImageView.accessibilityLabel = NSLocalizedString("Secure connection", comment: "Accessibility label for the lock icon, which is only present if the connection is secure")
@@ -146,7 +146,6 @@ class TabLocationView: UIView {
     lazy var separatorLine: UIView = {
         let line = UIView()
         line.layer.cornerRadius = 2
-        line.backgroundColor = UIColor(rgb: 0xE5E5E5)
         line.isHidden = true
         return line
     }()
@@ -290,17 +289,15 @@ extension TabLocationView: AccessibilityActionsSource {
 
 extension TabLocationView: Themeable {
     func applyTheme(_ theme: Theme) {
-        let background = BrowserColor(normal: 0xffffff, pbm: 0x636369)
-
-        backgroundColor = background.colorFor(theme)
+        backgroundColor = UIColor.TextField.Background.colorFor(theme)
         urlTextField.textColor = UIColor.Browser.Tint.colorFor(theme)
-        readerModeButton.selectedTintColor = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff).colorFor(theme)
-        readerModeButton.unselectedTintColor = BrowserColor(normal: 0x737373, pbm: 0xADADb0).colorFor(theme)
+        readerModeButton.selectedTintColor = UIColor.TextField.ReaderModeButtonSelected.colorFor(theme)
+        readerModeButton.unselectedTintColor = UIColor.TextField.ReaderModeButtonUnselected.colorFor(theme)
         
-        pageOptionsButton.selectedTintColor = BrowserColor(normal: 0x00A2FE, pbm: 0xcf68ff).colorFor(theme)
-        pageOptionsButton.unselectedTintColor = UIColor.Browser.Tint.colorFor(theme)
+        pageOptionsButton.selectedTintColor = UIColor.TextField.PageOptionsSelected.colorFor(theme)
+        pageOptionsButton.unselectedTintColor = UIColor.TextField.PageOptionsUnselected.colorFor(theme)
         pageOptionsButton.tintColor = pageOptionsButton.unselectedTintColor
-        separatorLine.backgroundColor = BrowserColor(normal: 0xE5E5E5, pbm: 0x3f3f43).colorFor(theme)
+        separatorLine.backgroundColor = UIColor.TextField.Separator.colorFor(theme)
     }
 }
 

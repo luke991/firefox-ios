@@ -6,8 +6,10 @@ import Foundation
 import SnapKit
 import Shared
 
-class SnackBarUX {
+private class SnackBarUX {
     static var MaxWidth: CGFloat = 400
+    static let HighlightColor = UIColor(red: 205/255, green: 223/255, blue: 243/255, alpha: 0.9)
+    static let HighlightText = UIColor(red: 42/255, green: 121/255, blue: 213/255, alpha: 1.0)
 }
 
 /**
@@ -26,7 +28,7 @@ class SnackButton: UIButton {
      */
     lazy var highlightImg: UIImage = {
         let size = CGSize(width: 1, height: 1)
-        return UIImage.createWithColor(size, color: UIConstants.HighlightColor)
+        return UIImage.createWithColor(size, color: SnackBarUX.HighlightColor)
     }()
 
     init(title: String, accessibilityIdentifier: String, callback: @escaping (_ bar: SnackBar) -> Void) {
@@ -37,7 +39,7 @@ class SnackButton: UIButton {
         setTitle(title, for: UIControlState())
         titleLabel?.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
         setBackgroundImage(highlightImg, for: .highlighted)
-        setTitleColor(UIConstants.HighlightText, for: .highlighted)
+        setTitleColor(SnackBarUX.HighlightText, for: .highlighted)
 
         addTarget(self, action: #selector(SnackButton.onClick), for: .touchUpInside)
 

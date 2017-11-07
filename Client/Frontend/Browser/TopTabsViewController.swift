@@ -152,7 +152,7 @@ class TopTabsViewController: UIViewController {
             make.edges.equalTo(topTabFader)
         }
 
-        view.backgroundColor = UIColor(rgb: 0x272727)
+        view.backgroundColor = UIColor.Defaults.Grey80
         tabsButton.applyTheme(.Normal)
         if let currentTab = tabManager.selectedTab {
             applyTheme(currentTab.isPrivate ? .Private : .Normal)
@@ -250,15 +250,14 @@ class TopTabsViewController: UIViewController {
 extension TopTabsViewController: Themeable {
     func applyTheme(_ theme: Theme) {
         tabsButton.applyTheme(theme)
-        tabsButton.titleBackgroundColor = view.backgroundColor ?? UIColor(rgb: 0x272727)
-        tabsButton.textColor = UIColor(rgb: 0xb1b1b3)
+        tabsButton.titleBackgroundColor = view.backgroundColor ?? UIColor.Defaults.Grey80
+        tabsButton.textColor = UIColor.Defaults.Grey40
 
-        let privateModeTint = BrowserColor(normal: 0xf9f9fa, pbm: 0xb1b1b3)
         isPrivate = (theme == Theme.Private)
         privateModeButton.applyTheme(theme)
-        privateModeButton.tintColor = privateModeTint.colorFor(theme)
+        privateModeButton.tintColor = UIColor.TopTabs.PrivateModeTint.colorFor(theme)
         privateModeButton.imageView?.tintColor = privateModeButton.tintColor
-        newTab.tintColor = UIColor(rgb: 0xb1b1b3)
+        newTab.tintColor = UIColor.Defaults.Grey40
         collectionView.backgroundColor = view.backgroundColor
     }
 }
