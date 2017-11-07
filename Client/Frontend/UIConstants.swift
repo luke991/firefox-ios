@@ -144,19 +144,7 @@ public struct UIConstants {
     static let BorderColor = UIColor.darkGray
     static let BackgroundColor = AppBackgroundColor
 
-    // settings
-    static let TableViewHeaderBackgroundColor = AppBackgroundColor
-    static let TableViewHeaderTextColor = UIColor.Defaults.Grey50
-    static let TableViewRowTextColor = UIColor.Defaults.Grey90
-    static let TableViewDisabledRowTextColor = UIColor.lightGray
-    static let TableViewSeparatorColor = UIColor(rgb: 0xD1D1D4)
-    static let TableViewHeaderFooterHeight = CGFloat(44)
-    static let TableViewRowErrorTextColor = UIColor(red: 255/255, green: 0/255, blue: 26/255, alpha: 1.0)
-    static let TableViewRowWarningTextColor = UIColor(red: 245/255, green: 166/255, blue: 35/255, alpha: 1.0)
-    static let TableViewRowActionAccessoryColor = UIColor(red: 0.29, green: 0.56, blue: 0.89, alpha: 1.0)
-    static let TableViewRowSyncTextColor = UIColor(red: 51/255, green: 51/255, blue: 51/255, alpha: 1.0)
-
-    // List of Default colors to use for Favicon backgrounds
+    // Used as backgrounds for favicons
     static let DefaultColorStrings = ["2e761a", "399320", "40a624", "57bd35", "70cf5b", "90e07f", "b1eea5", "881606", "aa1b08", "c21f09", "d92215", "ee4b36", "f67964", "ffa792", "025295", "0568ba", "0675d3", "0996f8", "2ea3ff", "61b4ff", "95cdff", "00736f", "01908b", "01a39d", "01bdad", "27d9d2", "58e7e6", "89f4f5", "c84510", "e35b0f", "f77100", "ff9216", "ffad2e", "ffc446", "ffdf81", "911a2e", "b7223b", "cf2743", "ea385e", "fa526e", "ff7a8d", "ffa7b3" ]
 
     /// JPEG compression quality for persisted screenshots. Must be between 0-1.
