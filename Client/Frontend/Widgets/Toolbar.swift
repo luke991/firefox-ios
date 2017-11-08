@@ -9,18 +9,22 @@ class Toolbar: UIView {
     var drawTopBorder = false
     var drawBottomBorder = false
     var drawSeperators = false
+    private var contentView = UIStackView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = UIColor.clear
-
+        backgroundColor = UIColor.clear
+        contentView.axis = .horizontal
+        contentView.distribution = .fillEqually
+        addSubview(contentView)
         // Allow the view to redraw itself on rotation changes
         contentMode = UIViewContentMode.redraw
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
 
     fileprivate func drawLine(_ context: CGContext, width: CGFloat, start: CGPoint, end: CGPoint) {
         context.setStrokeColor(UIConstants.BorderColor.cgColor)
@@ -62,31 +66,13 @@ class Toolbar: UIView {
             button.setTitleColor(UIColor.black, for: UIControlState())
             button.setTitleColor(UIColor.gray, for: UIControlState.disabled)
             button.imageView?.contentMode = UIViewContentMode.scaleAspectFit
-            addSubview(button)
+            contentView.addArrangedSubview(button)
         }
     }
 
     override func updateConstraints() {
-        var prev: UIView? = nil
-        for view in self.subviews {
-            view.snp.remakeConstraints { make in
-                if let prev = prev {
-                    make.left.equalTo(prev.snp.right)
-                } else {
-                    make.left.equalTo(self)
-                }
-                prev = view
-                
-                var bottomInset: CGFloat = 0.0
-                if #available(iOS 11, *) {
-                    if let window = UIApplication.shared.keyWindow {
-                        bottomInset = window.safeAreaInsets.bottom
-                    }
-                }
-                make.top.equalTo(self)
-                make.height.equalTo(UIConstants.BottomToolbarHeight - bottomInset)
-                make.width.equalTo(self).dividedBy(self.subviews.count)
-            }
+        contentView.snp.remakeConstraints { make in
+            make.edges.equalTo(self)
         }
         super.updateConstraints()
     }

@@ -50,7 +50,7 @@ class BrowserViewController: UIViewController {
     fileprivate var screenshotHelper: ScreenshotHelper!
     fileprivate var homePanelIsInline = false
     fileprivate var searchLoader: SearchLoader!
-    fileprivate let snackBars = UIView()
+    fileprivate let snackBars = UIStackView()
     fileprivate var findInPageBar: FindInPageBar?
     fileprivate let findInPageContainer = UIView()
 
@@ -375,10 +375,10 @@ class BrowserViewController: UIViewController {
         searchLoader = SearchLoader(profile: profile, urlBar: urlBar)
 
         footer = UIView()
-        self.view.addSubview(footer)
-        self.view.addSubview(snackBars)
-        snackBars.backgroundColor = UIColor.clear
-        self.view.addSubview(findInPageContainer)
+        view.addSubview(footer)
+        snackBars.axis = .vertical
+        view.addSubview(snackBars)
+        view.addSubview(findInPageContainer) //move this into snackbars
 
         if AppConstants.MOZ_CLIPBOARD_BAR {
             clipboardBarDisplayHandler = ClipboardBarDisplayHandler(prefs: profile.prefs, tabManager: tabManager)
@@ -674,6 +674,11 @@ class BrowserViewController: UIViewController {
             } else {
                 make.bottom.equalTo(self.view)
             }
+        }
+
+        snackBars.snp.remakeConstraints { make in
+            make.bottom.equalTo(findInPageContainer.snp.top)
+            make.leading.trailing.equalTo(self.view)
         }
     }
 
@@ -1683,7 +1688,7 @@ extension BrowserViewController: TabDelegate {
     }
 
     fileprivate func findSnackbar(_ barToFind: SnackBar) -> Int? {
-        let bars = snackBars.subviews
+        let bars = snackBars.arrangedSubviews
         for (index, bar) in bars.enumerated() where bar === barToFind {
             return index
         }
@@ -1691,106 +1696,48 @@ extension BrowserViewController: TabDelegate {
     }
 
     fileprivate func updateSnackBarConstraints() {
-        snackBars.snp.remakeConstraints { make in
-            make.bottom.equalTo(findInPageContainer.snp.top)
-
-            let bars = self.snackBars.subviews
-            if bars.count > 0 {
-                let view = bars[bars.count-1]
-                make.top.equalTo(view.snp.top)
-            } else {
-                make.height.equalTo(0)
-            }
-
-            if traitCollection.horizontalSizeClass != .regular {
-                make.leading.trailing.equalTo(self.view)
-                self.snackBars.layer.borderWidth = 0
-            } else {
-                make.centerX.equalTo(self.view)
-                make.width.equalTo(SnackBarUX.MaxWidth)
-                self.snackBars.layer.borderColor = UIConstants.BorderColor.cgColor
-                self.snackBars.layer.borderWidth = 1
-            }
-        }
+//        snackBars.snp.remakeConstraints { make in
+//            make.bottom.equalTo(findInPageContainer.snp.top)
+//
+//            let bars = self.snackBars.subviews
+//            if bars.count > 0 {
+//                let view = bars[bars.count-1]
+//                make.top.equalTo(view.snp.top)
+//            } else {
+//                make.height.equalTo(0)
+//            }
+//
+//            if traitCollection.horizontalSizeClass != .regular {
+//                make.leading.trailing.equalTo(self.view)
+//                self.snackBars.layer.borderWidth = 0
+//            } else {
+//                make.centerX.equalTo(self.view)
+//                make.width.equalTo(SnackBarUX.MaxWidth)
+//                self.snackBars.layer.borderColor = UIConstants.BorderColor.cgColor
+//                self.snackBars.layer.borderWidth = 1
+//            }
+//        }
     }
 
-    // This removes the bar from its superview and updates constraints appropriately
-    fileprivate func finishRemovingBar(_ bar: SnackBar) {
-        // If there was a bar above this one, we need to remake its constraints.
-        if let index = findSnackbar(bar) {
-            // If the bar being removed isn't on the top of the list
-            let bars = snackBars.subviews
-            if index < bars.count-1 {
-                // Move the bar above this one
-                let nextbar = bars[index+1] as! SnackBar
-                nextbar.snp.makeConstraints { make in
-                    // If this wasn't the bottom bar, attach to the bar below it
-                    if index > 0 {
-                        let bar = bars[index-1] as! SnackBar
-                        nextbar.bottom = make.bottom.equalTo(bar.snp.top).constraint
-                    } else {
-                        // Otherwise, we attach it to the bottom of the snackbars
-                        nextbar.bottom = make.bottom.equalTo(self.snackBars.snp.bottom).constraint
-                    }
-                }
-            }
-        }
-
-        // Really remove the bar
-        bar.removeFromSuperview()
-    }
-
-    fileprivate func finishAddingBar(_ bar: SnackBar) {
-        snackBars.addSubview(bar)
-        bar.snp.makeConstraints { make in
-            // If there are already bars showing, add this on top of them
-            let bars = self.snackBars.subviews
-
-            // Add the bar on top of the stack
-            // We're the new top bar in the stack, so make sure we ignore ourself
-            if bars.count > 1 {
-                let view = bars[bars.count - 2]
-                bar.bottom = make.bottom.equalTo(view.snp.top).offset(0).constraint
-            } else {
-                bar.bottom = make.bottom.equalTo(self.snackBars.snp.bottom).offset(0).constraint
-            }
-            make.leading.trailing.equalTo(self.snackBars)
-        }
-    }
+    // This removes the bar from its superview and updates constraints appropriatel
 
     func showBar(_ bar: SnackBar, animated: Bool) {
-        finishAddingBar(bar)
-        updateSnackBarConstraints()
-
-        bar.hide()
         view.layoutIfNeeded()
         UIView.animate(withDuration: animated ? 0.25 : 0, animations: { () -> Void in
-            bar.show()
+            self.snackBars.insertArrangedSubview(bar, at: 0)
             self.view.layoutIfNeeded()
         })
     }
 
     func removeBar(_ bar: SnackBar, animated: Bool) {
-        if let _ = findSnackbar(bar) {
-            UIView.animate(withDuration: animated ? 0.25 : 0, animations: { () -> Void in
-                bar.hide()
-                self.view.layoutIfNeeded()
-            }, completion: { success in
-                // Really remove the bar
-                self.finishRemovingBar(bar)
-                self.updateSnackBarConstraints()
-            }) 
-        }
+        UIView.animate(withDuration: animated ? 0.25 : 0, animations: { () -> Void in
+            bar.removeFromSuperview()
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
 
     func removeAllBars() {
-        let bars = snackBars.subviews
-        for bar in bars {
-            if let bar = bar as? SnackBar {
-                bar.removeFromSuperview()
-            }
-        }
-        self.updateSnackBarConstraints()
+        snackBars.arrangedSubviews.forEach { $0.removeFromSuperview() }
     }
 
     func tab(_ tab: Tab, didAddSnackbar bar: SnackBar) {
