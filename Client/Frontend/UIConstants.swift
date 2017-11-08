@@ -93,7 +93,7 @@ extension UIColor {
     // The back/forward/refresh/menu button (bottom toolbar)
     struct ToolbarButton {
         static let SelectedTint = BrowserColor(normal: Defaults.MobileBlueD, pbm: Defaults.MobilePurpleB)
-        static let DisabledTint = BrowserColor(normal: 0x55, pbm: 0x0) //wrong
+        static let DisabledTint = BrowserColor(normal: UIColor.lightGray, pbm: UIColor.gray)
     }
 
     struct LoadingBar {

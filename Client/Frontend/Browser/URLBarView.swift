@@ -645,12 +645,11 @@ extension URLBarView: Themeable {
 
         progressBar.setGradientColors(startColor: UIColor.LoadingBar.Start.colorFor(theme), endColor: UIColor.LoadingBar.End.colorFor(theme))
         currentTheme = theme
-        locationBorderColor = UIColor.URLBar.Border.colorFor(theme)
+        locationBorderColor = UIColor.URLBar.Border.colorFor(theme).withAlphaComponent(0.3)
         locationActiveBorderColor = UIColor.URLBar.ActiveBorder.colorFor(theme)
         cancelTintColor = UIColor.Browser.Tint.colorFor(theme)
         showQRButtonTintColor = UIColor.Browser.Tint.colorFor(theme)
         backgroundColor = UIColor.Browser.Background.colorFor(theme)
-        line.backgroundColor = UIColor.Browser.URLBarDivider.colorFor(theme)
         line.backgroundColor = UIColor.Browser.URLBarDivider.colorFor(theme)
         locationContainer.layer.shadowColor = self.locationBorderColor.cgColor
     }
