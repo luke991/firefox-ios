@@ -16,8 +16,6 @@ class SnackBarUX {
  * A specialized version of UIButton for use in SnackBars. These are displayed evenly
  * spaced in the bottom of the bar. The main convenience of these is that you can pass
  * in a callback in the constructor (although these also style themselves appropriately).
- *
- *``SnackButton(title: "OK", { _ in print("OK", terminator: "\n") })``
  */
 typealias SnackBarCallback = (_ bar: SnackBar) -> Void
 class SnackButton: UIButton {
@@ -38,6 +36,7 @@ class SnackButton: UIButton {
         setTitle(title, for: .normal)
         titleLabel?.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
         setTitleColor(SnackBarUX.HighlightText, for: .highlighted)
+        setTitleColor(SettingsUX.TableViewRowTextColor, for: .normal)
         addTarget(self, action: #selector(SnackButton.onClick), for: .touchUpInside)
         self.accessibilityIdentifier = accessibilityIdentifier
     }
@@ -51,23 +50,18 @@ class SnackButton: UIButton {
     }
 
     func drawSeparator() {
-
+        let separator = UIView()
+        separator.backgroundColor = UIConstants.BorderColor
+        self.addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.leading.equalTo(self)
+            make.width.equalTo(0.5)
+            make.top.bottom.equalTo(self)
+        }
     }
 
 }
 
-/**
- * Presents some information to the user. Can optionally include some buttons and an image. Usage:
- *
- * ``let bar = SnackBar(text: "This is some text in the snackbar.",
- *     img: UIImage(named: "bookmark"),
- *     buttons: [
- *         SnackButton(title: "OK", { _ in print("OK", terminator: "\n") }),
- *         SnackButton(title: "Cancel", { _ in print("Cancel", terminator: "\n") }),
- *         SnackButton(title: "Maybe", { _ in print("Maybe", terminator: "\n") })
- *     ]
- * )``
- */
 class SnackBar: UIView {
     let imageView = UIImageView()
     let textLabel = UILabel()
