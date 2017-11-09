@@ -649,7 +649,6 @@ class BrowserViewController: UIViewController {
             make.leading.trailing.equalTo(self.view)
         }
 
-        updateSnackBarConstraints()
         urlBar.setNeedsUpdateConstraints()
 
         // Remake constraints even if we're already showing the home controller.
@@ -1688,32 +1687,6 @@ extension BrowserViewController: TabDelegate {
         }
         return nil
     }
-
-    fileprivate func updateSnackBarConstraints() {
-//        snackBars.snp.remakeConstraints { make in
-//            make.bottom.equalTo(findInPageContainer.snp.top)
-//
-//            let bars = self.snackBars.subviews
-//            if bars.count > 0 {
-//                let view = bars[bars.count-1]
-//                make.top.equalTo(view.snp.top)
-//            } else {
-//                make.height.equalTo(0)
-//            }
-//
-//            if traitCollection.horizontalSizeClass != .regular {
-//                make.leading.trailing.equalTo(self.view)
-//                self.snackBars.layer.borderWidth = 0
-//            } else {
-//                make.centerX.equalTo(self.view)
-//                make.width.equalTo(SnackBarUX.MaxWidth)
-//                self.snackBars.layer.borderColor = UIConstants.BorderColor.cgColor
-//                self.snackBars.layer.borderWidth = 1
-//            }
-//        }
-    }
-
-    // This removes the bar from its superview and updates constraints appropriatel
 
     func showBar(_ bar: SnackBar, animated: Bool) {
         view.layoutIfNeeded()

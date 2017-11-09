@@ -63,11 +63,45 @@ class SnackButton: UIButton {
 }
 
 class SnackBar: UIView {
-    let imageView = UIImageView()
-    let textLabel = UILabel()
-    let contentView = UIView()
     let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .extraLight))
-    let buttonsView = UIStackView()
+
+    private var imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        // These are requried to make sure that the image is _never_ smaller or larger than its actual size
+        imageView.setContentHuggingPriority(UILayoutPriorityRequired, for: .horizontal)
+        imageView.setContentHuggingPriority(UILayoutPriorityRequired, for: .vertical)
+        imageView.setContentCompressionResistancePriority(UILayoutPriorityRequired, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(UILayoutPriorityRequired, for: .vertical)
+        return imageView
+    }()
+
+    private var textLabel: UILabel = {
+        let label = UILabel()
+        label.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(UILayoutPriorityRequired, for: .horizontal)
+        label.backgroundColor = nil
+        label.numberOfLines = 0
+        label.textColor = SettingsUX.TableViewRowTextColor
+        label.backgroundColor = UIColor.clear
+        return label
+    }()
+
+    private var buttonsView: UIStackView = {
+        let stack = UIStackView()
+        stack.distribution = .fillEqually
+        return stack
+    }()
+
+    private var titleView: UIStackView = {
+        let stack = UIStackView()
+        stack.spacing = UIConstants.DefaultPadding
+        stack.distribution = .fill
+        stack.axis = .horizontal
+        stack.alignment = .center
+        return stack
+    }()
 
     // The Constraint for the bottom of this snackbar. We use this to transition it
     var bottom: Constraint?
@@ -75,55 +109,46 @@ class SnackBar: UIView {
     init(text: String, img: UIImage?) {
         super.init(frame: CGRect.zero)
 
-        imageView.image = img
+        imageView.image = img ?? UIImage(named: "defaultFavicon")
         textLabel.text = text
         setup()
     }
 
     fileprivate func setup() {
-        textLabel.backgroundColor = nil
-        buttonsView.distribution = .fillEqually
-
         addSubview(backgroundView)
-        addSubview(contentView)
-        contentView.addSubview(imageView)
-        contentView.addSubview(textLabel)
+        titleView.addArrangedSubview(imageView)
+        titleView.addArrangedSubview(textLabel)
 
         let separator = UIView()
         separator.backgroundColor = UIConstants.BorderColor
-        contentView.addSubview(separator)
+
+        addSubview(titleView)
+        addSubview(separator)
         addSubview(buttonsView)
 
         separator.snp.makeConstraints { make in
             make.leading.trailing.equalTo(self)
             make.height.equalTo(0.5)
-            make.top.equalTo(buttonsView.snp.top)
+            make.top.equalTo(buttonsView.snp.top).offset(-1)
+        }
+
+        backgroundView.snp.makeConstraints { make in
+            make.bottom.left.right.equalTo(self)
+            // Offset it by the width of the top border line so we can see the line from the super view
+            make.top.equalTo(self).offset(1)
+        }
+
+        titleView.snp.makeConstraints { make in
+            make.top.equalTo(self).offset(UIConstants.DefaultPadding)
+            make.centerX.equalTo(self).priority(500)
+            make.width.lessThanOrEqualTo(self).inset(UIConstants.DefaultPadding * 2).priority(1000)
         }
 
         backgroundColor = UIColor.clear
-        imageView.contentMode = UIViewContentMode.left
-
-        textLabel.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
-        textLabel.lineBreakMode = .byWordWrapping
-        textLabel.numberOfLines = 0
-        textLabel.textColor = SettingsUX.TableViewRowTextColor
-        textLabel.backgroundColor = UIColor.clear
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let imageWidth: CGFloat
-        if let img = imageView.image {
-            imageWidth = img.size.width + UIConstants.DefaultPadding * 2
-        } else {
-            imageWidth = 0
-        }
-        self.textLabel.preferredMaxLayoutWidth = contentView.frame.width - (imageWidth + UIConstants.DefaultPadding)
-        super.layoutSubviews()
     }
 
     fileprivate func drawLine(_ context: CGContext, start: CGPoint, end: CGPoint) {
@@ -152,41 +177,8 @@ class SnackBar: UIView {
     override func updateConstraints() {
         super.updateConstraints()
 
-        backgroundView.snp.remakeConstraints { make in
-            make.bottom.left.right.equalTo(self)
-            // Offset it by the width of the top border line so we can see the line from the super view
-            make.top.equalTo(self).offset(1)
-        }
-
-        contentView.snp.remakeConstraints { make in
-            make.top.left.right.equalTo(self).inset(UIEdgeInsets(equalInset: UIConstants.DefaultPadding))
-        }
-
-        if let img = imageView.image {
-            imageView.snp.remakeConstraints { make in
-                make.left.centerY.equalTo(contentView)
-                // To avoid doubling the padding, the textview doesn't have an inset on its left side.
-                // Instead, it relies on the imageView to tell it where its left side should be.
-                make.width.equalTo(img.size.width + UIConstants.DefaultPadding)
-                make.height.equalTo(img.size.height + UIConstants.DefaultPadding)
-            }
-        } else {
-            imageView.snp.remakeConstraints { make in
-                make.width.height.equalTo(0)
-                make.top.left.equalTo(self)
-                make.bottom.lessThanOrEqualTo(contentView.snp.bottom)
-            }
-        }
-
-        textLabel.snp.remakeConstraints { make in
-            make.top.equalTo(contentView)
-            make.left.equalTo(self.imageView.snp.right)
-            make.trailing.equalTo(contentView)
-            make.bottom.lessThanOrEqualTo(contentView.snp.bottom)
-        }
-
         buttonsView.snp.remakeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(UIConstants.DefaultPadding)
+            make.top.equalTo(titleView.snp.bottom).offset(UIConstants.DefaultPadding)
             make.bottom.equalTo(self.snp.bottom)
             make.leading.trailing.equalTo(self)
             if self.buttonsView.subviews.count > 0 {
