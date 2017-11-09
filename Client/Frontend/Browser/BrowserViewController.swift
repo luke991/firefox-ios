@@ -378,7 +378,7 @@ class BrowserViewController: UIViewController {
         view.addSubview(footer)
         snackBars.axis = .vertical
         view.addSubview(snackBars)
-        view.addSubview(findInPageContainer) //move this into snackbars
+      //  view.addSubview(findInPageContainer) //move this into snackbars
 
         if AppConstants.MOZ_CLIPBOARD_BAR {
             clipboardBarDisplayHandler = ClipboardBarDisplayHandler(prefs: profile.prefs, tabManager: tabManager)
@@ -664,9 +664,8 @@ class BrowserViewController: UIViewController {
             }
         }
 
-        findInPageContainer.snp.remakeConstraints { make in
+        snackBars.snp.remakeConstraints { make in
             make.left.right.equalTo(self.view)
-
             if let keyboardHeight = keyboardState?.intersectionHeightForView(self.view), keyboardHeight > 0 {
                 make.bottom.equalTo(self.view).offset(-keyboardHeight)
             } else if let toolbar = self.toolbar {
@@ -674,11 +673,6 @@ class BrowserViewController: UIViewController {
             } else {
                 make.bottom.equalTo(self.view)
             }
-        }
-
-        snackBars.snp.remakeConstraints { make in
-            make.bottom.equalTo(findInPageContainer.snp.top)
-            make.leading.trailing.equalTo(self.view)
         }
     }
 
@@ -1084,10 +1078,9 @@ class BrowserViewController: UIViewController {
                 let findInPageBar = FindInPageBar()
                 self.findInPageBar = findInPageBar
                 findInPageBar.delegate = self
-                findInPageContainer.addSubview(findInPageBar)
+                snackBars.addArrangedSubview(findInPageBar)
 
                 findInPageBar.snp.makeConstraints { make in
-                    make.edges.equalTo(findInPageContainer)
                     make.height.equalTo(UIConstants.ToolbarHeight)
                 }
 
@@ -1305,6 +1298,7 @@ extension BrowserViewController: URLBarDelegate {
         }
         
         let successCallback: (String) -> Void = { (successMessage) in
+
             SimpleToast().showAlertWithText(successMessage, bottomContainer: self.webViewContainer)
         }
         
@@ -1948,11 +1942,7 @@ extension BrowserViewController: TabManagerDelegate {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            self.view.addSubview(buttonToast)
-            buttonToast.snp.makeConstraints { make in
-                make.left.right.equalTo(self.view)
-                make.bottom.equalTo(self.webViewContainer)
-            }
+            self.snackBars.insertArrangedSubview(buttonToast, at: 0)
             buttonToast.showToast(duration: duration)
         }
     }
@@ -2735,7 +2725,7 @@ extension BrowserViewController: KeyboardHelperDelegate {
 
         UIView.animate(withDuration: state.animationDuration) {
             UIView.setAnimationCurve(state.animationCurve)
-            self.findInPageContainer.layoutIfNeeded()
+        //    self.findInPageContainer.layoutIfNeeded()
             self.snackBars.layoutIfNeeded()
         }
 
@@ -2767,7 +2757,7 @@ extension BrowserViewController: KeyboardHelperDelegate {
 
         UIView.animate(withDuration: state.animationDuration) {
             UIView.setAnimationCurve(state.animationCurve)
-            self.findInPageContainer.layoutIfNeeded()
+      //      self.findInPageContainer.layoutIfNeeded()
             self.snackBars.layoutIfNeeded()
         }
     }

@@ -19,36 +19,27 @@ class SnackBarUX {
  *
  *``SnackButton(title: "OK", { _ in print("OK", terminator: "\n") })``
  */
+typealias SnackBarCallback = (_ bar: SnackBar) -> Void
 class SnackButton: UIButton {
-    let callback: (_ bar: SnackBar) -> Void
+    let callback: SnackBarCallback?
     fileprivate var bar: SnackBar!
 
-    /**
-     * An image to show as the background when a button is pressed. This is currently a 1x1 pixel blue color
-     */
-    lazy var highlightImg: UIImage = {
-        let size = CGSize(width: 1, height: 1)
-        return UIImage.createWithColor(size, color: SnackBarUX.HighlightColor)
-    }()
+    override open var isHighlighted: Bool {
+        didSet {
+            self.backgroundColor = isHighlighted ? SnackBarUX.HighlightColor : .clear
+        }
+    }
 
-    init(title: String, accessibilityIdentifier: String, callback: @escaping (_ bar: SnackBar) -> Void) {
+    init(title: String, accessibilityIdentifier: String, callback: @escaping SnackBarCallback) {
         self.callback = callback
 
         super.init(frame: CGRect.zero)
 
-        setTitle(title, for: UIControlState())
+        setTitle(title, for: .normal)
         titleLabel?.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
-        setBackgroundImage(highlightImg, for: .highlighted)
         setTitleColor(SnackBarUX.HighlightText, for: .highlighted)
-
         addTarget(self, action: #selector(SnackButton.onClick), for: .touchUpInside)
-
         self.accessibilityIdentifier = accessibilityIdentifier
-    }
-
-    override init(frame: CGRect) {
-        self.callback = { bar in }
-        super.init(frame: frame)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -56,7 +47,11 @@ class SnackButton: UIButton {
     }
 
     func onClick() {
-        callback(bar)
+        callback?(bar)
+    }
+
+    func drawSeparator() {
+
     }
 
 }
@@ -74,71 +69,50 @@ class SnackButton: UIButton {
  * )``
  */
 class SnackBar: UIView {
-    let imageView: UIImageView
-    let textLabel: UILabel
-    let contentView: UIView
-    let backgroundView: UIView
-    let buttonsView: Toolbar
-    fileprivate var buttons = [SnackButton]()
+    let imageView = UIImageView()
+    let textLabel = UILabel()
+    let contentView = UIView()
+    let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .extraLight))
+    let buttonsView = UIStackView()
+
     // The Constraint for the bottom of this snackbar. We use this to transition it
     var bottom: Constraint?
 
-    convenience init(text: String, img: UIImage?, buttons: [SnackButton]?) {
-        var attributes = [String: AnyObject]()
-        attributes[NSFontAttributeName] = DynamicFontHelper.defaultHelper.DefaultMediumFont
-        attributes[NSBackgroundColorAttributeName] = UIColor.clear
-        let attrText = NSAttributedString(string: text, attributes: attributes)
-        self.init(attrText: attrText, img: img, buttons: buttons)
-    }
-
-    init(attrText: NSAttributedString, img: UIImage?, buttons: [SnackButton]?) {
-        imageView = UIImageView()
-        textLabel = UILabel()
-        contentView = UIView()
-        buttonsView = Toolbar()
-        backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.extraLight))
-
+    init(text: String, img: UIImage?) {
         super.init(frame: CGRect.zero)
 
         imageView.image = img
-        textLabel.attributedText = attrText
-        if let buttons = buttons {
-            for button in buttons {
-                addButton(button)
-            }
-        }
+        textLabel.text = text
         setup()
-    }
-
-    fileprivate override init(frame: CGRect) {
-        imageView = UIImageView()
-        textLabel = UILabel()
-        contentView = UIView()
-        buttonsView = Toolbar()
-        backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.extraLight))
-
-        super.init(frame: frame)
     }
 
     fileprivate func setup() {
         textLabel.backgroundColor = nil
+        buttonsView.distribution = .fillEqually
 
         addSubview(backgroundView)
         addSubview(contentView)
         contentView.addSubview(imageView)
         contentView.addSubview(textLabel)
+
+        let separator = UIView()
+        separator.backgroundColor = UIConstants.BorderColor
+        contentView.addSubview(separator)
         addSubview(buttonsView)
 
-        self.backgroundColor = UIColor.clear
-        buttonsView.drawTopBorder = true
-        buttonsView.drawBottomBorder = false
-        buttonsView.drawSeperators = true
+        separator.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(self)
+            make.height.equalTo(0.5)
+            make.top.equalTo(buttonsView.snp.top)
+        }
 
+        backgroundColor = UIColor.clear
         imageView.contentMode = UIViewContentMode.left
 
         textLabel.font = DynamicFontHelper.defaultHelper.DefaultMediumFont
-        textLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        textLabel.lineBreakMode = .byWordWrapping
         textLabel.numberOfLines = 0
+        textLabel.textColor = SettingsUX.TableViewRowTextColor
         textLabel.backgroundColor = UIColor.clear
     }
 
@@ -167,8 +141,9 @@ class SnackBar: UIView {
     }
 
     override func draw(_ rect: CGRect) {
-        let context = UIGraphicsGetCurrentContext()
-        drawLine(context!, start: CGPoint(x: 0, y: 1), end: CGPoint(x: frame.size.width, y: 1))
+        if let context = UIGraphicsGetCurrentContext() {
+            drawLine(context, start: CGPoint(x: 0, y: 1), end: CGPoint(x: frame.size.width, y: 1))
+        }
     }
 
     /**
@@ -219,7 +194,7 @@ class SnackBar: UIView {
         buttonsView.snp.remakeConstraints { make in
             make.top.equalTo(contentView.snp.bottom).offset(UIConstants.DefaultPadding)
             make.bottom.equalTo(self.snp.bottom)
-            make.left.right.equalTo(self)
+            make.leading.trailing.equalTo(self)
             if self.buttonsView.subviews.count > 0 {
                 make.height.equalTo(UIConstants.SnackbarButtonHeight)
             } else {
@@ -232,30 +207,19 @@ class SnackBar: UIView {
         return alpha != 0 && self.superview != nil
     }
 
-    /**
-     * Helper for animating the Snackbar showing on screen.
-     */
     func show() {
         alpha = 1
         bottom?.update(offset: 0)
     }
 
-    /**
-     * Helper for animating the Snackbar leaving the screen.
-     */
-    func hide() {
-        alpha = 0
-        var h = frame.height
-        if h == 0 {
-            h = UIConstants.ToolbarHeight
-        }
-        bottom?.update(offset: h)
-    }
-
-    fileprivate func addButton(_ snackButton: SnackButton) {
+    func addButton(_ snackButton: SnackButton) {
         snackButton.bar = self
-        buttonsView.addButtons([snackButton])
-        buttonsView.setNeedsUpdateConstraints()
+        buttonsView.addArrangedSubview(snackButton)
+
+        // Only show the separator on the left of the button if it is not the first view
+        if buttonsView.arrangedSubviews.count != 1 {
+            snackButton.drawSeparator()
+        }
     }
 }
 
@@ -265,18 +229,12 @@ class SnackBar: UIView {
  * you stay on the current tab though, it will persist until you interact with it.
  */
 class TimerSnackBar: SnackBar {
-    fileprivate var prevURL: URL?
     fileprivate var timer: Timer?
     fileprivate var timeout: TimeInterval
 
-    init(timeout: TimeInterval = 10, attrText: NSAttributedString, img: UIImage?, buttons: [SnackButton]?) {
+    init(timeout: TimeInterval = 10, text: String, img: UIImage?) {
         self.timeout = timeout
-        super.init(attrText: attrText, img: img, buttons: buttons)
-    }
-
-    override init(frame: CGRect) {
-        self.timeout = 0
-        super.init(frame: frame)
+        super.init(text: text, img: img)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -284,30 +242,26 @@ class TimerSnackBar: SnackBar {
     }
 
     static func showAppStoreConfirmationBar(forTab tab: Tab, appStoreURL: URL) {
-        let msg =  NSAttributedString(string: Strings.ExternalLinkAppStoreConfirmationTitle, attributes: [NSForegroundColorAttributeName: SettingsUX.TableViewRowTextColor])
-        let bar = TimerSnackBar(attrText: msg,
-                             img: UIImage(named: "defaultFavicon"),
-                             buttons: [
-                                SnackButton(title: Strings.OKString, accessibilityIdentifier: "ConfirmOpenInAppStore", callback: { bar in
-                                    tab.removeSnackbar(bar)
-                                    UIApplication.shared.open(appStoreURL, options: [:])
-                                }),
-                                SnackButton(title: Strings.CancelString, accessibilityIdentifier: "CancelOpenInAppStore", callback: { bar in
-                                    tab.removeSnackbar(bar)
-                                })
-            ])
-        
+        let bar = TimerSnackBar(text: Strings.ExternalLinkAppStoreConfirmationTitle, img: UIImage(named: "defaultFavicon"))
+        let openAppStore = SnackButton(title: Strings.OKString, accessibilityIdentifier: "ConfirmOpenInAppStore") { bar in
+            tab.removeSnackbar(bar)
+            UIApplication.shared.openURL(appStoreURL)
+        }
+        let cancelButton = SnackButton(title: Strings.CancelString, accessibilityIdentifier: "CancelOpenInAppStore") { bar in
+            tab.removeSnackbar(bar)
+        }
+        bar.addButton(openAppStore)
+        bar.addButton(cancelButton)
         tab.addSnackbar(bar)
     }
     
     override func show() {
-        self.timer = Timer(timeInterval: timeout, target: self, selector: #selector(TimerSnackBar.SELTimerDone), userInfo: nil, repeats: false)
+        self.timer = Timer(timeInterval: timeout, target: self, selector: #selector(TimerSnackBar.timerDone), userInfo: nil, repeats: false)
         RunLoop.current.add(self.timer!, forMode: RunLoopMode.defaultRunLoopMode)
         super.show()
     }
 
-    @objc
-    func SELTimerDone() {
+    @objc func timerDone() {
         self.timer = nil
     }
 
@@ -315,7 +269,6 @@ class TimerSnackBar: SnackBar {
         if !showing {
             return timer != nil
         }
-
         return super.shouldPersist(tab)
     }
 }
