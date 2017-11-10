@@ -230,8 +230,6 @@ struct PrivateModeStrings {
 
 protocol TabTrayDelegate: class {
     func tabTrayDidDismiss(_ tabTray: TabTrayController)
-    func tabTrayDidAddBookmark(_ tab: Tab)
-    func tabTrayDidAddToReadingList(_ tab: Tab) -> ReadingListClientRecord?
     func tabTrayRequestsPresentationOf(_ viewController: UIViewController)
 }
 
@@ -923,11 +921,12 @@ fileprivate class EmptyPrivateTabsView: UIView {
 extension TabTrayController: TabPeekDelegate {
 
     func tabPeekDidAddBookmark(_ tab: Tab) {
-        delegate?.tabTrayDidAddBookmark(tab)
+        self.addBookmark(for: tab)
     }
 
     func tabPeekDidAddToReadingList(_ tab: Tab) -> ReadingListClientRecord? {
-        return delegate?.tabTrayDidAddToReadingList(tab)
+        guard let url = tab.url?.absoluteString, url.count > 0 else { return nil }
+        return profile.readingList?.createRecordWithURL(url, title: tab.title ?? url, addedBy: UIDevice.current.name).successValue
     }
 
     func tabPeekDidCloseTab(_ tab: Tab) {
@@ -939,6 +938,20 @@ extension TabTrayController: TabPeekDelegate {
 
     func tabPeekRequestsPresentationOf(_ viewController: UIViewController) {
         delegate?.tabTrayRequestsPresentationOf(viewController)
+    }
+
+    func addBookmark(for tab: Tab) {
+        guard let url = tab.url else { return }
+        let absoluteString = url.absoluteString
+        let shareItem = ShareItem(url: absoluteString, title: tab.title, favicon: tab.displayFavicon)
+        _ = profile.bookmarks.shareItem(shareItem)
+        var userData = [QuickActions.TabURLKey: shareItem.url]
+        if let title = shareItem.title {
+            userData[QuickActions.TabTitleKey] = title
+        }
+        QuickActions.sharedInstance.addDynamicApplicationShortcutItemOfType(.openLastBookmark,
+                                                                            withUserData: userData,
+                                                                            toApplication: UIApplication.shared)
     }
 }
 

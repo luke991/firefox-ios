@@ -6,6 +6,9 @@ import Foundation
 import WebKit
 
 class LocalRequestHelper: TabHelper {
+
+    required init(tab: Tab, profile: Profile) { }
+
     func scriptMessageHandlerName() -> String? {
         return "localRequestHelper"
     }

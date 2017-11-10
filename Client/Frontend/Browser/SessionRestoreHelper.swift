@@ -9,13 +9,19 @@ protocol SessionRestoreHelperDelegate: class {
     func sessionRestoreHelper(_ helper: SessionRestoreHelper, didRestoreSessionForTab tab: Tab)
 }
 
-class SessionRestoreHelper: TabHelper {
+class SessionRestoreHelper: DelegatingTabHelper {
     weak var delegate: SessionRestoreHelperDelegate?
-    fileprivate weak var tab: Tab?
 
-    required init(tab: Tab) {
+    required init(tab: Tab, profile: Profile) { }
+
+    required init(tab: Tab, profile: Profile, delegate: AnyObject?) {
         self.tab = tab
+        if let delegate = delegate as? SessionRestoreHelperDelegate {
+            self.delegate = delegate
+        }
     }
+
+    fileprivate weak var tab: Tab?
 
     func scriptMessageHandlerName() -> String? {
         return "sessionRestoreHelper"

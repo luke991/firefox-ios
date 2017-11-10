@@ -43,10 +43,10 @@ class ReadabilityOperation: Operation, WKNavigationDelegate, ReadabilityTabHelpe
             self.tab.createWebview()
             self.tab.navigationDelegate = self
 
-            if let readabilityTabHelper = ReadabilityTabHelper(tab: self.tab) {
-                readabilityTabHelper.delegate = self
-                self.tab.addHelper(readabilityTabHelper, name: ReadabilityTabHelper.name())
-            }
+//            if let readabilityTabHelper = ReadabilityTabHelper(tab: self.tab) {
+//                readabilityTabHelper.delegate = self
+//                self.tab.addHelper(readabilityTabHelper, name: ReadabilityTabHelper.name())
+//            }
 
             // Load the page in the webview. This either fails with a navigation error, or we get a readability
             // callback. Or it takes too long, in which case the semaphore times out.

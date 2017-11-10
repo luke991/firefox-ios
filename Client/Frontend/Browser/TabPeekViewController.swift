@@ -130,11 +130,7 @@ class TabPeekViewController: UIViewController, WKNavigationDelegate {
     func setState(withProfile browserProfile: BrowserProfile, clientPickerDelegate: ClientPickerViewControllerDelegate) {
         assert(Thread.current.isMainThread)
 
-        guard let tab = self.tab else {
-            return
-        }
-
-        guard let displayURL = tab.url?.absoluteString, displayURL.characters.count > 0 else {
+        guard let tab = self.tab, let displayURL = tab.url?.absoluteString, displayURL.count > 0 else {
             return
         }
 
@@ -163,7 +159,7 @@ class TabPeekViewController: UIViewController, WKNavigationDelegate {
 
         let result = browserProfile.readingList?.getRecordWithURL(displayURL).successValue!
 
-        self.isInReadingList = (result?.url.characters.count ?? 0) > 0
+        self.isInReadingList = (result?.url.count ?? 0) > 0
         self.ignoreURL = isIgnoredURL(displayURL)
     }
 

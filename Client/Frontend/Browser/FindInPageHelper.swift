@@ -11,7 +11,7 @@ protocol FindInPageHelperDelegate: class {
     func findInPageHelper(_ findInPageHelper: FindInPageHelper, didUpdateTotalResults totalResults: Int)
 }
 
-class FindInPageHelper: TabHelper {
+class FindInPageHelper: DelegatingTabHelper {
     weak var delegate: FindInPageHelperDelegate?
     fileprivate weak var tab: Tab?
 
@@ -19,8 +19,14 @@ class FindInPageHelper: TabHelper {
         return "FindInPage"
     }
 
-    required init(tab: Tab) {
+    required init(tab: Tab, profile: Profile) { }
+
+    required init(tab: Tab, profile: Profile, delegate: AnyObject?) {
         self.tab = tab
+
+        if let delegate = delegate as? FindInPageHelperDelegate {
+            self.delegate = delegate
+        }
 
         if let path = Bundle.main.path(forResource: "FindInPage", ofType: "js"), let source = try? NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue) as String {
             let userScript = WKUserScript(source: source, injectionTime: WKUserScriptInjectionTime.atDocumentEnd, forMainFrameOnly: true)

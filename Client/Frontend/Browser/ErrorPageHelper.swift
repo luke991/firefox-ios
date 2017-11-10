@@ -129,6 +129,9 @@ class ErrorPageHelper {
         }
     }
 
+    required init(tab: Tab, profile: Profile) { }
+    init() { }
+
     class func register(_ server: WebServer, certStore: CertStore?) {
         self.certStore = certStore
 
@@ -256,6 +259,7 @@ class ErrorPageHelper {
 }
 
 extension ErrorPageHelper: TabHelper {
+
     static func name() -> String {
         return "ErrorPageHelper"
     }

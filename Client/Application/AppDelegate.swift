@@ -637,15 +637,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
     }
 
     fileprivate func addBookmark(_ notification: UNNotification) {
-        if let alertURL = notification.request.content.userInfo[TabSendURLKey] as? String,
-            let title = notification.request.content.userInfo[TabSendTitleKey] as? String {
-            let tabState = TabState(isPrivate: false, desktopSite: false, isBookmarked: false, url: URL(string: alertURL), title: title, favicon: nil)
-                browserViewController.addBookmark(tabState)
-
-                let userData = [QuickActions.TabURLKey: alertURL,
-                    QuickActions.TabTitleKey: title]
-                QuickActions.sharedInstance.addDynamicApplicationShortcutItemOfType(.openLastBookmark, withUserData: userData, toApplication: UIApplication.shared)
-        }
+//        if let alertURL = notification.request.content.userInfo[TabSendURLKey] as? String,
+//            let title = notification.request.content.userInfo[TabSendTitleKey] as? String {
+//            let tabState = TabState(isPrivate: false, desktopSite: false, isBookmarked: false, url: URL(string: alertURL), title: title, favicon: nil)
+//             //   browserViewController.addBookmark(tabState)??
+//
+//                let userData = [QuickActions.TabURLKey: alertURL,
+//                    QuickActions.TabTitleKey: title]
+//                QuickActions.sharedInstance.addDynamicApplicationShortcutItemOfType(.openLastBookmark, withUserData: userData, toApplication: UIApplication.shared)
+//        }
     }
 
     fileprivate func addToReadingList(_ notification: UNNotification) {

@@ -29,7 +29,7 @@ class SpotlightHelper: NSObject {
         return self.tab?.isPrivate ?? true
     }
 
-    init(tab: Tab) {
+    required init(tab: Tab, profile: Profile) {
         self.tab = tab
 
         if let path = Bundle.main.path(forResource: "SpotlightHelper", ofType: "js") {

@@ -22,10 +22,15 @@ class ContextMenuHelper: NSObject {
     fileprivate var nativeHighlightLongPressRecognizer: UILongPressGestureRecognizer?
     fileprivate var elements: Elements?
 
-    required init(tab: Tab) {
+    required init(tab: Tab, profile: Profile) { }
+
+    required init(tab: Tab, profile: Profile, delegate: AnyObject?) {
         super.init()
 
         self.tab = tab
+        if let delegate = delegate as? ContextMenuHelperDelegate {
+            self.delegate = delegate
+        }
 
         guard let path = Bundle.main.path(forResource: "ContextMenu", ofType: "js"),
                 let source = try? NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue) as String,
@@ -73,7 +78,7 @@ class ContextMenuHelper: NSObject {
     }
 }
 
-extension ContextMenuHelper: TabHelper {
+extension ContextMenuHelper: DelegatingTabHelper {
     class func name() -> String {
         return "ContextMenuHelper"
     }

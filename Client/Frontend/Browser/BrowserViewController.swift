@@ -314,7 +314,6 @@ class BrowserViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(BrowserViewController.SELBookmarkStatusDidChange(_:)), name: NSNotification.Name(rawValue: BookmarkStatusChangedNotification), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(BrowserViewController.SELappWillResignActiveNotification), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(BrowserViewController.SELappDidBecomeActiveNotification), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(BrowserViewController.SELappDidEnterBackgroundNotification), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
@@ -378,7 +377,6 @@ class BrowserViewController: UIViewController {
         view.addSubview(footer)
         snackBars.axis = .vertical
         view.addSubview(snackBars)
-      //  view.addSubview(findInPageContainer) //move this into snackbars
 
         if AppConstants.MOZ_CLIPBOARD_BAR {
             clipboardBarDisplayHandler = ClipboardBarDisplayHandler(prefs: profile.prefs, tabManager: tabManager)
@@ -521,28 +519,24 @@ class BrowserViewController: UIViewController {
     }
 
     fileprivate func showRestoreTabsAlert() {
-        if !canRestoreTabs() {
+        guard canRestoreTabs() else {
             self.tabManager.addTabAndSelect()
             return
         }
-
         let alert = UIAlertController.restoreTabsAlert(
             okayCallback: { _ in
                 self.tabManager.restoreTabs()
-                self.updateTabCountUsingTabManager(self.tabManager, animated: false)
             },
             noCallback: { _ in
                 self.tabManager.addTabAndSelect()
-                self.updateTabCountUsingTabManager(self.tabManager, animated: false)
             }
         )
-
         self.present(alert, animated: true, completion: nil)
     }
 
     fileprivate func canRestoreTabs() -> Bool {
         guard let tabsToRestore = TabManager.tabsToRestore() else { return false }
-        return tabsToRestore.count > 0
+        return !tabsToRestore.isEmpty
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -807,37 +801,6 @@ class BrowserViewController: UIViewController {
         }
     }
 
-    func addBookmark(_ tabState: TabState) {
-        guard let url = tabState.url else { return }
-        let absoluteString = url.absoluteString
-        let shareItem = ShareItem(url: absoluteString, title: tabState.title, favicon: tabState.favicon)
-        profile.bookmarks.shareItem(shareItem)
-        var userData = [QuickActions.TabURLKey: shareItem.url]
-        if let title = shareItem.title {
-            userData[QuickActions.TabTitleKey] = title
-        }
-        QuickActions.sharedInstance.addDynamicApplicationShortcutItemOfType(.openLastBookmark,
-            withUserData: userData,
-            toApplication: UIApplication.shared)
-        if let tab = tabManager.getTabForURL(url) {
-            tab.isBookmarked = true
-        }
-    }
-
-    func SELBookmarkStatusDidChange(_ notification: Notification) {
-        if let bookmark = notification.object as? BookmarkItem {
-            if bookmark.url == urlBar.currentURL?.absoluteString {
-                if let userInfo = notification.userInfo as? Dictionary<String, Bool> {
-                    if userInfo["added"] != nil {
-                        if let tab = self.tabManager.getTabForURL(urlBar.currentURL!) {
-                            tab.isBookmarked = false
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     override func accessibilityPerformEscape() -> Bool {
         if urlBar.inOverlayMode {
             urlBar.SELdidClickCancel()
@@ -955,16 +918,6 @@ class BrowserViewController: UIViewController {
 
         guard let url = tab.url?.displayURL?.absoluteString else {
             return
-        }
-
-        profile.bookmarks.modelFactory >>== {
-            $0.isBookmarked(url).uponQueue(DispatchQueue.main) { [weak tab] result in
-                guard let bookmarked = result.successValue else {
-                    print("Error getting bookmark status: \(result.failureValue ??? "nil").")
-                    return
-                }
-                tab?.isBookmarked = bookmarked
-            }
         }
     }
     // MARK: Opening New Tabs
@@ -1160,18 +1113,17 @@ class BrowserViewController: UIViewController {
             // VoiceOver will sometimes be stuck on the element, not allowing user to move
             // forward/backward. Strange, but LayoutChanged fixes that.
             UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, nil)
-        } else {
+        } else if let webView = tab.webView {
             // To Screenshot a tab that is hidden we must add the webView,
             // then wait enough time for the webview to render.
-            if let webView =  tab.webView {
-                view.insertSubview(webView, at: 0)
-                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                    self.screenshotHelper.takeScreenshot(tab)
-                    if webView.superview == self.view {
-                        webView.removeFromSuperview()
-                    }
+            view.insertSubview(webView, at: 0)
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                self.screenshotHelper.takeScreenshot(tab)
+                if webView.superview == self.view {
+                    webView.removeFromSuperview()
                 }
             }
+
         }
         
         // Remember whether or not a desktop site was requested
@@ -1593,25 +1545,22 @@ extension BrowserViewController: TabDelegate {
 
     func tab(_ tab: Tab, didCreateWebView webView: WKWebView) {
         webView.frame = webViewContainer.frame
-        // Observers that live as long as the tab. Make sure these are all cleared
-        // in willDeleteWebView below!
-        webView.addObserver(self, forKeyPath: KVOEstimatedProgress, options: .new, context: nil)
-        webView.addObserver(self, forKeyPath: KVOLoading, options: .new, context: nil)
-        webView.addObserver(self, forKeyPath: KVOCanGoBack, options: .new, context: nil)
-        webView.addObserver(self, forKeyPath: KVOCanGoForward, options: .new, context: nil)
-        tab.webView?.addObserver(self, forKeyPath: KVOURL, options: .new, context: nil)
-        tab.webView?.addObserver(self, forKeyPath: KVOTitle, options: .new, context: nil)
-
+        // Observers that live as long as the tab. Make sure these are all cleared in willDeleteWebView below!
+        let KVOs = [KVOEstimatedProgress, KVOLoading, KVOCanGoBack, KVOCanGoForward, KVOURL, KVOTitle]
+        KVOs.forEach { webView.addObserver(self, forKeyPath: $0, options: .new, context: nil) }
         webView.scrollView.addObserver(self.scrollController, forKeyPath: KVOContentSize, options: .new, context: nil)
-
         webView.uiDelegate = self
 
-        let readerMode = ReaderMode(tab: tab)
-        readerMode.delegate = self
-        tab.addHelper(readerMode, name: ReaderMode.name())
+        // This is an array of all the User Scripts that are injected into a WebView
+        let helpers: [TabHelper.Type] = [FaviconManager.self, ErrorPageHelper.self, NoImageModeHelper.self, PrintHelper.self, CustomSearchHelper.self, NightModeHelper.self, LocalRequestHelper.self, MetadataParserHelper.self, ReaderMode.self, ContextMenuHelper.self, FindInPageHelper.self, HistoryStateHelper.self, SessionRestoreHelper.self]
 
-        let favicons = FaviconManager(tab: tab, profile: profile)
-        tab.addHelper(favicons, name: FaviconManager.name())
+        helpers.forEach { Helper in
+            if let DelegtingHelper = Helper as? DelegatingTabHelper.Type {
+                tab.addHelper(DelegtingHelper.init(tab: tab, profile: profile, delegate: self), name: DelegtingHelper.name())
+            } else {
+                tab.addHelper(Helper.init(tab: tab, profile: profile), name: Helper.name())
+            }
+        }
 
         // only add the logins helper if the tab is not a private browsing tab
         if !tab.isPrivate {
@@ -1619,62 +1568,23 @@ extension BrowserViewController: TabDelegate {
             tab.addHelper(logins, name: LoginsHelper.name())
         }
 
-        let contextMenuHelper = ContextMenuHelper(tab: tab)
-        contextMenuHelper.delegate = self
-        tab.addHelper(contextMenuHelper, name: ContextMenuHelper.name())
-
-        let errorHelper = ErrorPageHelper()
-        tab.addHelper(errorHelper, name: ErrorPageHelper.name())
-
-        let sessionRestoreHelper = SessionRestoreHelper(tab: tab)
-        sessionRestoreHelper.delegate = self
-        tab.addHelper(sessionRestoreHelper, name: SessionRestoreHelper.name())
-
-        let findInPageHelper = FindInPageHelper(tab: tab)
-        findInPageHelper.delegate = self
-        tab.addHelper(findInPageHelper, name: FindInPageHelper.name())
-
-        let noImageModeHelper = NoImageModeHelper(tab: tab)
-        tab.addHelper(noImageModeHelper, name: NoImageModeHelper.name())
-        
-        let printHelper = PrintHelper(tab: tab)
-        tab.addHelper(printHelper, name: PrintHelper.name())
-
-        let customSearchHelper = CustomSearchHelper(tab: tab)
-        tab.addHelper(customSearchHelper, name: CustomSearchHelper.name())
-
-        let nightModeHelper = NightModeHelper(tab: tab)
-        tab.addHelper(nightModeHelper, name: NightModeHelper.name())
-
         // XXX: Bug 1390200 - Disable NSUserActivity/CoreSpotlight temporarily
         // let spotlightHelper = SpotlightHelper(tab: tab)
         // tab.addHelper(spotlightHelper, name: SpotlightHelper.name())
 
-        tab.addHelper(LocalRequestHelper(), name: LocalRequestHelper.name())
-
-        let historyStateHelper = HistoryStateHelper(tab: tab)
-        historyStateHelper.delegate = self
-        tab.addHelper(historyStateHelper, name: HistoryStateHelper.name())
-        
+        //Content blocker should not be called Helper if it is not a TabHelper.
         if #available(iOS 11, *) {
             (tab.contentBlocker as? ContentBlockerHelper)?.setupForWebView()
         }
-
-        let metadataHelper = MetadataParserHelper(tab: tab, profile: profile)
-        tab.addHelper(metadataHelper, name: MetadataParserHelper.name())
     }
 
     func tab(_ tab: Tab, willDeleteWebView webView: WKWebView) {
         tab.cancelQueuedAlerts()
 
-        webView.removeObserver(self, forKeyPath: KVOEstimatedProgress)
-        webView.removeObserver(self, forKeyPath: KVOLoading)
-        webView.removeObserver(self, forKeyPath: KVOCanGoBack)
-        webView.removeObserver(self, forKeyPath: KVOCanGoForward)
-        webView.scrollView.removeObserver(self.scrollController, forKeyPath: KVOContentSize)
-        webView.removeObserver(self, forKeyPath: KVOURL)
-        webView.removeObserver(self, forKeyPath: KVOTitle)
+        let KVOs = [KVOEstimatedProgress, KVOLoading, KVOCanGoBack, KVOCanGoForward, KVOURL, KVOTitle]
+        KVOs.forEach { webView.removeObserver(self, forKeyPath: $0) }
 
+        webView.scrollView.removeObserver(self.scrollController, forKeyPath: KVOContentSize)
         webView.uiDelegate = nil
         webView.scrollView.delegate = nil
         webView.removeFromSuperview()
@@ -1793,14 +1703,9 @@ extension BrowserViewController: TabManagerDelegate {
         if let tab = selected, let webView = tab.webView {
             updateURLBarDisplayURL(tab)
             if tab.isPrivate != previous?.isPrivate {
-                applyTheme(tab.isPrivate ? Theme.Private : Theme.Normal)
+                applyTheme(tab.isPrivate ? .Private : .Normal)
             }
-            if tab.isPrivate {
-                readerModeCache = MemoryReaderModeCache.sharedInstance
-                
-            } else {
-                readerModeCache = DiskReaderModeCache.sharedInstance
-            }
+            readerModeCache = tab.isPrivate ? MemoryReaderModeCache.sharedInstance : DiskReaderModeCache.sharedInstance
             if let privateModeButton = topTabsViewController?.privateModeButton, previous != nil && previous?.isPrivate != tab.isPrivate {
                 privateModeButton.setSelected(tab.isPrivate, animated: true)
             }
@@ -1816,25 +1721,7 @@ extension BrowserViewController: TabManagerDelegate {
             webView.accessibilityIdentifier = "contentView"
             webView.accessibilityElementsHidden = false
 
-            if let url = webView.url {
-                let absoluteString = url.absoluteString
-                // Don't bother fetching bookmark state for about/sessionrestore and about/home.
-                if url.isAboutURL {
-                    // Indeed, because we don't show the toolbar at all, don't even blank the star.
-                } else {
-                    profile.bookmarks.modelFactory >>== { [weak tab] in
-                        $0.isBookmarked(absoluteString)
-                            .uponQueue(DispatchQueue.main) {
-                            guard let isBookmarked = $0.successValue else {
-                                print("Error getting bookmark status: \($0.failureValue ??? "nil").")
-                                return
-                            }
-
-                            tab?.isBookmarked = isBookmarked
-                        }
-                    }
-                }
-            } else {
+            if webView.url == nil {
                 // The web view can go gray if it was zombified due to memory pressure.
                 // When this happens, the URL is nil, so try restoring the page upon selection.
                 tab.reload()
@@ -2045,10 +1932,10 @@ extension BrowserViewController: WKUIDelegate {
     fileprivate func checkIfWebContentProcessHasCrashed(_ webView: WKWebView, error: NSError) -> Bool {
         if error.code == WKError.webContentProcessTerminated.rawValue && error.domain == "WebKitErrorDomain" {
             print("WebContent process has crashed. Trying to reloadFromOrigin to restart it.")
+            // Add a sentry event here. Add useful telemetry as well only for debug
             webView.reloadFromOrigin()
             return true
         }
-
         return false
     }
 
@@ -2067,11 +1954,8 @@ extension BrowserViewController: WKUIDelegate {
             ErrorPageHelper().showPage(error, forUrl: navigationResponse.response.url!, inWebView: webView)
             return decisionHandler(WKNavigationResponsePolicy.allow)
         }
-        
-        if openInHelper.openInView == nil {
-             openInHelper.openInView = navigationToolbar.menuButton
-        }
 
+        openInHelper.openInView = openInHelper.openInView ?? navigationToolbar.menuButton
         openInHelper.open()
         decisionHandler(WKNavigationResponsePolicy.cancel)
     }
@@ -2514,17 +2398,15 @@ extension BrowserViewController: ContextMenuHelperDelegate {
                     application.endBackgroundTask(taskId)
                 })
 
-                Alamofire.request(url)
-                    .validate(statusCode: 200..<300)
-                    .response { response in
-                        // Only set the image onto the pasteboard if the pasteboard hasn't changed since
-                        // fetching the image; otherwise, in low-bandwidth situations,
-                        // we might be overwriting something that the user has subsequently added.
-                        if changeCount == pasteboard.changeCount, let imageData = response.data, response.error == nil {
-                            pasteboard.addImageWithData(imageData, forURL: url)
-                        }
+                Alamofire.request(url).validate(statusCode: 200..<300).response { response in
+                    // Only set the image onto the pasteboard if the pasteboard hasn't changed since
+                    // fetching the image; otherwise, in low-bandwidth situations,
+                    // we might be overwriting something that the user has subsequently added.
+                    if changeCount == pasteboard.changeCount, let imageData = response.data, response.error == nil {
+                        pasteboard.addImageWithData(imageData, forURL: url)
+                    }
 
-                        application.endBackgroundTask(taskId)
+                    application.endBackgroundTask(taskId)
                 }
             }
             actionSheetController.addAction(copyAction)
@@ -2549,14 +2431,11 @@ extension BrowserViewController: ContextMenuHelperDelegate {
     }
 
     fileprivate func getImage(_ url: URL, success: @escaping (UIImage) -> Void) {
-        Alamofire.request(url)
-            .validate(statusCode: 200..<300)
-            .response { response in
-                if let data = response.data,
-                   let image = UIImage.dataIsGIF(data) ? UIImage.imageFromGIFDataThreadSafe(data) : UIImage.imageFromDataThreadSafe(data) {
-                    success(image)
-                }
+        Alamofire.request(url).validate(statusCode: 200..<300).response { response in
+            if let data = response.data, let image = UIImage.dataIsGIF(data) ? UIImage.imageFromGIFDataThreadSafe(data) : UIImage.imageFromDataThreadSafe(data) {
+                success(image)
             }
+        }
     }
 
     func contextMenuHelper(_ contextMenuHelper: ContextMenuHelper, didCancelGestureRecognizer: UIGestureRecognizer) {
@@ -2698,21 +2577,22 @@ extension BrowserViewController: KeyboardHelperDelegate {
 
         UIView.animate(withDuration: state.animationDuration) {
             UIView.setAnimationCurve(state.animationCurve)
-        //    self.findInPageContainer.layoutIfNeeded()
             self.snackBars.layoutIfNeeded()
         }
 
-        if let webView = tabManager.selectedTab?.webView {
-            webView.evaluateJavaScript("__firefox__.searchQueryForField()") { (result, _) in
-                guard let _ = result as? String else {
-                    return
-                }
-                self.addCustomSearchButtonToWebView(webView)
+        guard let webView = tabManager.selectedTab?.webView else {
+            return
+        }
+        webView.evaluateJavaScript("__firefox__.searchQueryForField()") { (result, _) in
+            guard let _ = result as? String else {
+                return
             }
+            self.addCustomSearchButtonToWebView(webView)
         }
     }
 
     func keyboardHelper(_ keyboardHelper: KeyboardHelper, keyboardDidShowWithState state: KeyboardState) {
+
     }
 
     func keyboardHelper(_ keyboardHelper: KeyboardHelper, keyboardWillHideWithState state: KeyboardState) {
@@ -2730,7 +2610,6 @@ extension BrowserViewController: KeyboardHelperDelegate {
 
         UIView.animate(withDuration: state.animationDuration) {
             UIView.setAnimationCurve(state.animationCurve)
-      //      self.findInPageContainer.layoutIfNeeded()
             self.snackBars.layoutIfNeeded()
         }
     }
@@ -2753,16 +2632,6 @@ extension BrowserViewController: TabTrayDelegate {
         resetBrowserChrome()
     }
 
-    func tabTrayDidAddBookmark(_ tab: Tab) {
-        guard let url = tab.url?.absoluteString, url.characters.count > 0 else { return }
-        self.addBookmark(tab.tabState)
-    }
-
-    func tabTrayDidAddToReadingList(_ tab: Tab) -> ReadingListClientRecord? {
-        guard let url = tab.url?.absoluteString, url.characters.count > 0 else { return nil }
-        return profile.readingList?.createRecordWithURL(url, title: tab.title ?? url, addedBy: UIDevice.current.name).successValue
-    }
-
     func tabTrayRequestsPresentationOf(_ viewController: UIViewController) {
         self.present(viewController, animated: false, completion: nil)
     }
@@ -2778,8 +2647,6 @@ extension BrowserViewController: Themeable {
         setNeedsStatusBarAppearanceUpdate()
     }
 }
-
-
 
 extension BrowserViewController: FindInPageBarDelegate, FindInPageHelperDelegate {
     func findInPage(_ findInPage: FindInPageBar, didTextChange text: String) {
@@ -2802,10 +2669,7 @@ extension BrowserViewController: FindInPageBarDelegate, FindInPageHelperDelegate
 
     fileprivate func find(_ text: String, function: String) {
         guard let webView = tabManager.selectedTab?.webView else { return }
-
-        let escaped = text.replacingOccurrences(of: "\\", with: "\\\\")
-                          .replacingOccurrences(of: "\"", with: "\\\"")
-
+        let escaped = text.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         webView.evaluateJavaScript("__firefox__.\(function)(\"\(escaped)\")", completionHandler: nil)
     }
 
@@ -2835,7 +2699,7 @@ extension BrowserViewController: TopTabsDelegate {
     }
 
     func topTabsDidTogglePrivateMode() {
-        guard let selectedTab = tabManager.selectedTab else {
+        guard let _ = tabManager.selectedTab else {
             return
         }
         urlBar.leaveOverlayMode()
@@ -2856,8 +2720,7 @@ extension BrowserViewController: ClientPickerViewControllerDelegate, Instruction
     }
 
     func clientPickerViewController(_ clientPickerViewController: ClientPickerViewController, didPickClients clients: [RemoteClient]) {
-        guard let tab = tabManager.selectedTab,
-            let url = tab.canonicalURL?.displayURL?.absoluteString else { return }
+        guard let tab = tabManager.selectedTab, let url = tab.canonicalURL?.displayURL?.absoluteString else { return }
         let shareItem = ShareItem(url: url, title: tab.title, favicon: tab.displayFavicon)
         guard shareItem.isShareable else {
             let alert = UIAlertController(title: Strings.SendToErrorTitle, message: Strings.SendToErrorMessage, preferredStyle: .alert)

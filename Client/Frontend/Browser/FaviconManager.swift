@@ -18,7 +18,7 @@ class FaviconManager: TabHelper {
     
     static let maximumFaviconSize = 1 * 1024 * 1024 // 1 MiB file size limit
 
-    init(tab: Tab, profile: Profile) {
+    required init(tab: Tab, profile: Profile) {
         self.profile = profile
         self.tab = tab
 

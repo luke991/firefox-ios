@@ -213,7 +213,7 @@ protocol ReaderModeDelegate {
 
 let ReaderModeNamespace = "window.__firefox__.reader"
 
-class ReaderMode: TabHelper {
+class ReaderMode: DelegatingTabHelper {
     var delegate: ReaderModeDelegate?
 
     fileprivate weak var tab: Tab?
@@ -224,9 +224,13 @@ class ReaderMode: TabHelper {
         return "ReaderMode"
     }
 
-    required init(tab: Tab) {
-        self.tab = tab
+    required init(tab: Tab, profile: Profile) { }
 
+    required init(tab: Tab, profile: Profile, delegate: AnyObject?) {
+        self.tab = tab
+        if let delegate = delegate as? ReaderModeDelegate {
+            self.delegate = delegate
+        }
         // This is a WKUserScript at the moment because webView.evaluateJavaScript() fails with an unspecified error. Possibly script size related.
         if let path = Bundle.main.path(forResource: "Readability", ofType: "js") {
             if let source = try? NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue) as String {

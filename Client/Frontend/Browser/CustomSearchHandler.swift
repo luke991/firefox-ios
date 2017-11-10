@@ -8,7 +8,7 @@ import WebKit
 class CustomSearchHelper: TabHelper {
     fileprivate weak var tab: Tab?
 
-    required init(tab: Tab) {
+    required init(tab: Tab, profile: Profile) {
         self.tab = tab
         if let path = Bundle.main.path(forResource: "CustomSearchHelper", ofType: "js") {
             if let source = try? NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue) as String {

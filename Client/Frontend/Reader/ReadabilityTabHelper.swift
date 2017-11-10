@@ -10,6 +10,9 @@ protocol ReadabilityTabHelperDelegate {
 }
 
 class ReadabilityTabHelper: TabHelper {
+
+    required init(tab: Tab, profile: Profile) { }
+
     var delegate: ReadabilityTabHelperDelegate?
 
     class func name() -> String {
