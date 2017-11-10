@@ -1253,13 +1253,15 @@ extension BrowserViewController: URLBarDelegate {
             SimpleToast().showAlertWithText(successMessage, bottomContainer: self.webViewContainer)
         }
         
-        guard let tab = tabManager.selectedTab, tab.url != nil else { return }
-        
-        // The logic of which actions appear when isnt final.
-        let pageActions = getTabActions(tab: tab, buttonView: button, presentShareMenu: actionMenuPresenter,
-                                        findInPage: findInPageAction, presentableVC: self, success: successCallback)
+        guard let tab = tabManager.selectedTab, let urlString = tab.url?.absoluteString else { return }
 
-        presentSheetWith(actions: pageActions, on: self, from: button)
+        self.fetchBookmarkStatus(for: urlString) { (isBookmarked) in
+            let pageActions = self.getTabActions(tab: tab, buttonView: button, presentShareMenu: actionMenuPresenter,
+                                                 findInPage: findInPageAction, presentableVC: self, isBookmarked: isBookmarked, success: successCallback)
+
+            self.presentSheetWith(actions: pageActions, on: self, from: button)
+        }
+
     }
     
     func urlBarDidLongPressPageOptions(_ urlBar: URLBarView, from button: UIButton) {

@@ -113,6 +113,7 @@ extension PhotonActionSheetProtocol {
                        presentShareMenu: @escaping (URL, Tab, UIView, UIPopoverArrowDirection) -> Void,
                        findInPage:  @escaping () -> Void,
                        presentableVC: PresentableVC,
+                       isBookmarked: Bool,
                        success: @escaping (String) -> Void) -> Array<[PhotonActionSheetItem]> {
         
         let toggleActionTitle = tab.desktopSite ? Strings.AppMenuViewMobileSiteTitleString : Strings.AppMenuViewDesktopSiteTitleString
@@ -132,8 +133,7 @@ extension PhotonActionSheetProtocol {
         }
 
         let bookmarkPage = PhotonActionSheetItem(title: Strings.AppMenuAddBookmarkTitleString, iconString: "menu-Bookmark") { action in
-            //TODO: can all this logic go somewhere else?
-            guard let url = tab.canonicalURL?.displayURL else { return }
+            guard let url = tab.url else { return }
             let absoluteString = url.absoluteString
             let shareItem = ShareItem(url: absoluteString, title: tab.title, favicon: tab.displayFavicon)
             _ = self.profile.bookmarks.shareItem(shareItem)
@@ -148,7 +148,6 @@ extension PhotonActionSheetProtocol {
         }
         
         let removeBookmark = PhotonActionSheetItem(title: Strings.AppMenuRemoveBookmarkTitleString, iconString: "menu-Bookmark-Remove") { action in
-            //TODO: can all this logic go somewhere else?
             guard let url = tab.url?.displayURL else { return }
             let absoluteString = url.absoluteString
             self.profile.bookmarks.modelFactory >>== {
@@ -207,7 +206,7 @@ extension PhotonActionSheetProtocol {
 
         // Disable bookmarking and reading list if the URL is too long.
         if !tab.urlIsTooLong {
-           // topActions.append(tab.isBookmarked ? removeBookmark : bookmarkPage)
+            topActions.append(isBookmarked ? removeBookmark : bookmarkPage)
 
             if tab.readerModeAvailableOrActive {
                 topActions.append(addReadingList)
@@ -216,5 +215,14 @@ extension PhotonActionSheetProtocol {
 
         return [topActions, [copyURL, findInPageAction, toggleDesktopSite, pinToTopSites, sendToDevice], [share]]
     }
+
+    func fetchBookmarkStatus(for url: String, completionHandler: @escaping (Bool) -> Void) {
+        self.profile.bookmarks.modelFactory >>== {
+            $0.isBookmarked(url).uponQueue(.main) { result in
+                completionHandler(result.successValue ?? false)
+            }
+        }
+    }
+
 }
 
