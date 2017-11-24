@@ -43,6 +43,16 @@ struct IntroViewControllerUX {
     static let FadeDuration = 0.25
 }
 
+// Represents a single slide in the onboarding/intro flow
+struct IntroSlide {
+    let title: String
+    let description: String
+    let mediaURL: URL? // A remote image hosted somewhere
+    let assetPath: String? // An image in the resource bundle
+    let buttonTitle: String? // Title of a button. Not all slides have buttons
+    let buttonPath: String? // A deep link into the app somewhere
+}
+
 let IntroViewControllerSeenProfileKey = "IntroViewControllerSeen"
 
 protocol IntroViewControllerDelegate: class {
@@ -277,7 +287,7 @@ class IntroViewController: UIViewController, UIScrollViewDelegate {
     }
 
     func SELstartBrowsing() {
-        LeanplumIntegration.sharedInstance.track(eventName: .dismissedOnboarding)
+        LeanPlumClient.shared.track(event: .dismissedOnboarding)
         delegate?.introViewControllerDidFinish(self, requestToLogin: false)
     }
 
