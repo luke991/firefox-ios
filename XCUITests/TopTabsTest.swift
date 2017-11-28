@@ -160,4 +160,26 @@ class TopTabsTest: BaseTestCase {
         waitforNoExistence(app.collectionViews.cells[urlLabel])
         checkNumberOfTabsExpectedToBeOpen(expectedNumberOfTabsOpen: 1)
     }
+
+    func testCloseTabFromPageOptionsMenu() {
+        navigator.openURL(url)
+        XCTAssertTrue((navigator.userState.url?.starts(with: "www.mozilla.org"))!)
+        navigator.goto(PageOptionsMenu)
+        navigator.goto(HomePanelsScreen)
+        XCTAssertEqual(navigator.screenState, HomePanelsScreen)
+
+        navigator.goto(TabTray)
+        checkNumberOfTabsExpectedToBeOpen(expectedNumberOfTabsOpen: 1)
+    }
+
+    func testCloseTabFromLongPressTabsButton() {
+        navigator.openURL(url)
+        XCTAssertTrue((navigator.userState.url?.starts(with: "www.mozilla.org"))!)
+        navigator.goto(TabTrayLongPressMenu)
+        navigator.goto(HomePanelsScreen)
+        XCTAssertEqual(navigator.screenState, HomePanelsScreen)
+
+        navigator.goto(TabTray)
+        checkNumberOfTabsExpectedToBeOpen(expectedNumberOfTabsOpen: 1)
+        }
 }

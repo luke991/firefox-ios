@@ -39,6 +39,7 @@ let NewTabChoiceSettings = "NewTabChoiceSettings"
 let DisablePasscodeSettings = "DisablePasscodeSettings"
 let ChangePasscodeSettings = "ChangePasscodeSettings"
 let LockedLoginsSettings = "LockedLoginsSettings"
+let TabTrayLongPressMenu = "TabTrayLongPressMenu"
 
 // These are in the exact order they appear in the settings
 // screen. XCUIApplication loses them on small screens.
@@ -121,6 +122,8 @@ class Action {
 
     static let Bookmark = "Bookmark"
     static let BookmarkThreeDots = "BookmarkThreeDots"
+
+    static let OpenPrivateTabLongPressTabsButton = "OpenPrivateTabLongPressTabsButton"
 
     static let SetPasscode = "SetPasscode"
     static let SetPasscodeTypeOnce = "SetPasscodeTypeOnce"
@@ -596,6 +599,18 @@ func createScreenGraph(for test: XCTestCase, with app: XCUIApplication) -> Scree
         }
     }
 
+    // This menu is only available for iPhone, NOT for iPad, no menu when long tapping on tabs button
+    if !isTablet {
+        map.addScreenState(TabTrayLongPressMenu) { screenState in
+            screenState.dismissOnUse = true
+            screenState.tap(app.buttons["New Tab"], to: NewTabScreen)
+            screenState.tap(app.buttons["New Private Tab"], forAction: Action.OpenPrivateTabLongPressTabsButton, transitionTo: NewTabScreen) { userState in
+                userState.isPrivate = !userState.isPrivate
+            }
+            screenState.tap(app.buttons["Close Tab"], to: HomePanelsScreen)
+        }
+    }
+
     map.addScreenState(CloseTabMenu) { screenState in
         screenState.backAction = cancelBackAction
     }
@@ -642,6 +657,12 @@ func createScreenGraph(for test: XCTestCase, with app: XCUIApplication) -> Scree
         let reloadButton = app.buttons["TabToolbar.stopReloadButton"]
         screenState.press(reloadButton, to: ReloadLongPressMenu)
         screenState.tap(reloadButton, forAction: Action.ReloadURL, transitionTo: WebPageLoading) { _ in }
+
+        // For iPad there is no long press on tabs button
+        if !isTablet {
+            let tabsButton = app.buttons["TabToolbar.tabsButton"]
+            screenState.press(tabsButton, to: TabTrayLongPressMenu)
+        }
     }
 
     map.addScreenState(ReloadLongPressMenu) { screenState in
@@ -674,6 +695,7 @@ func createScreenGraph(for test: XCTestCase, with app: XCUIApplication) -> Scree
     map.addScreenState(PageOptionsMenu) {screenState in
         screenState.tap(app.tables["Context Menu"].cells["menu-FindInPage"], to: FindInPage)
         screenState.tap(app.tables["Context Menu"].cells["menu-Bookmark"], forAction: Action.BookmarkThreeDots, Action.Bookmark)
+        screenState.tap(app.tables["Context Menu"].cells["action_remove"], to: HomePanelsScreen)
         screenState.backAction = cancelBackAction
         screenState.dismissOnUse = true
     }
