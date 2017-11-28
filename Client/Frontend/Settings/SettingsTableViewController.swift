@@ -698,8 +698,9 @@ class SettingsTableSectionHeaderFooterView: UITableViewHeaderFooterView {
 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = SettingsUX.TableViewHeaderBackgroundColor
-        addSubview(titleLabel)
+        backgroundView = UIView(frame: self.bounds)
+        backgroundView?.backgroundColor = SettingsUX.TableViewHeaderBackgroundColor
+        contentView.addSubview(titleLabel)
         addSubview(topBorder)
         addSubview(bottomBorder)
 
@@ -733,18 +734,21 @@ class SettingsTableSectionHeaderFooterView: UITableViewHeaderFooterView {
     }
 
     fileprivate func remakeTitleAlignmentConstraints() {
+        guard let titleLabelSuperView = titleLabel.superview else {
+            return
+        }
         switch titleAlignment {
         case .top:
             titleLabel.snp.remakeConstraints { make in
-                make.left.right.equalTo(self).inset(SettingsTableSectionHeaderFooterViewUX.titleHorizontalPadding)
-                make.top.equalTo(self).offset(SettingsTableSectionHeaderFooterViewUX.titleVerticalPadding)
-                make.bottom.equalTo(self).offset(-SettingsTableSectionHeaderFooterViewUX.titleVerticalLongPadding)
+                make.left.right.equalTo(titleLabelSuperView).inset(SettingsTableSectionHeaderFooterViewUX.titleHorizontalPadding)
+                make.top.equalTo(titleLabelSuperView).offset(SettingsTableSectionHeaderFooterViewUX.titleVerticalPadding)
+                make.bottom.equalTo(titleLabelSuperView).offset(-SettingsTableSectionHeaderFooterViewUX.titleVerticalLongPadding)
             }
         case .bottom:
             titleLabel.snp.remakeConstraints { make in
-                make.left.right.equalTo(self).inset(SettingsTableSectionHeaderFooterViewUX.titleHorizontalPadding)
-                make.bottom.equalTo(self).offset(-SettingsTableSectionHeaderFooterViewUX.titleVerticalPadding)
-                make.top.equalTo(self).offset(SettingsTableSectionHeaderFooterViewUX.titleVerticalLongPadding)
+                make.left.right.equalTo(titleLabelSuperView).inset(SettingsTableSectionHeaderFooterViewUX.titleHorizontalPadding)
+                make.bottom.equalTo(titleLabelSuperView).offset(-SettingsTableSectionHeaderFooterViewUX.titleVerticalPadding)
+                make.top.equalTo(titleLabelSuperView).offset(SettingsTableSectionHeaderFooterViewUX.titleVerticalLongPadding)
             }
         }
     }
