@@ -229,7 +229,11 @@ class BrowserUtils {
         EarlGrey.select(elementWithMatcher: grey_accessibilityLabel("Cancel")).perform(grey_tap(), error: &error)
         error = nil
 
-        EarlGrey.select(elementWithMatcher: grey_accessibilityID("TabToolbar.tabsButton")).perform(grey_tap())
+        if iPad() {
+            EarlGrey.select(elementWithMatcher: grey_accessibilityID("TopTabsViewController.tabsButton")).perform(grey_tap())
+        } else {
+            EarlGrey.select(elementWithMatcher: grey_accessibilityID("TabToolbar.tabsButton")).perform(grey_tap())
+        }
 
         let goPrivateModeBtn = grey_allOf([grey_accessibilityID("TabTrayController.maskButton"), grey_accessibilityValue("Off")])
         let goNormalModeBtn = grey_allOf([grey_accessibilityID("TabTrayController.maskButton"), grey_accessibilityValue("On")])
